@@ -1,0 +1,9 @@
+﻿<Window x:Class="L2S02"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Height="140" Width="140">
+    <Canvas>
+        <Label Width="100" Height="30" Content="Hello, WPF!"/>
+        <Button Width="50" Height="30" Canvas.Top="40" Canvas.Left="35" Click="Button_Click">OK</Button>
+    </Canvas>
+</Window>

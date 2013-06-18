@@ -1,0 +1,10 @@
+﻿<Window x:Class="L3S02"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="L3S02" Height="300" Width="500">
+    <StackPanel>
+        <DataGrid Name="grid"/>
+        <Button Click="AddBook" Width="100">Добавить книгу</Button>
+        <Button Click="CmOk" Width="100">OK</Button>
+    </StackPanel>
+</Window>

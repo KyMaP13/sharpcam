@@ -1,0 +1,22 @@
+﻿<Window x:Class="L4S01"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="L4S01" Height="300" Width="300">
+    <Window.Resources>
+        <Style TargetType="TreeViewItem">
+            <Setter Property="IsExpanded" Value="True"/>
+        </Style>
+    </Window.Resources>
+    <TreeView>
+        <TreeViewItem Header="Продукты">
+            <TreeViewItem Header="Овощи">
+                <TreeViewItem Header="Картофель"/>
+                <TreeViewItem Header="Морковь"/>
+            </TreeViewItem>
+            <TreeViewItem Header="Фрукты">
+                <TreeViewItem Header="Бананы"/>
+                <TreeViewItem Header="Апельсины"/>
+            </TreeViewItem>
+        </TreeViewItem>
+    </TreeView>
+</Window>

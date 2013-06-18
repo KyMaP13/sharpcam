@@ -1,0 +1,36 @@
+﻿<Window x:Class="L3S06"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Карточка сотрудника" SizeToContent="WidthAndHeight">
+    <StackPanel>
+        <Grid Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Row="0" Grid.Column="0" Content="Имя"/>
+            <TextBox Grid.Row="0" Grid.Column="1" Text="Иванов Иван Иванович"/>
+
+            <Label Grid.Row="1" Grid.Column="0" Content="Статус"/>
+            <ComboBox Grid.Row="1" Grid.Column="1">
+                <ComboBox.Items>
+                    <ComboBoxItem>Ожидание заказа</ComboBoxItem>
+                    <ComboBoxItem>В работе</ComboBoxItem>
+                    <ComboBoxItem>Недоступен</ComboBoxItem>
+                </ComboBox.Items>
+            </ComboBox>
+
+            <CheckBox 
+            Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+            HorizontalAlignment="Right">
+                Стажер?
+            </CheckBox>
+        </Grid>
+        <Button Content="OK"/>
+    </StackPanel>
+</Window>

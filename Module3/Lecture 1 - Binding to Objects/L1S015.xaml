@@ -1,0 +1,27 @@
+﻿<Window x:Class="L1S015"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="L1S015" Height="300" Width="300">
+    <StackPanel Margin="10">  
+        <StackPanel>
+            <Label>Авторы:</Label>
+            <TextBox Text="{Binding Authors}"/>
+            <Label>Заголовок:</Label>
+            <TextBox Text="{Binding Title}"/>
+            <GroupBox Header="Издательство">
+                <StackPanel>
+                    <Label>Название:</Label>
+                    <TextBox Text="{Binding Publisher.Name}"/>
+                    <Label>Сайт:</Label>
+                    <TextBox>
+                        <TextBox.Text>
+                            <Binding Path="Publisher.URL"/>
+                        </TextBox.Text>
+                    </TextBox>
+                </StackPanel>
+            </GroupBox>
+        </StackPanel>
+        
+      
+    </StackPanel>
+</Window>

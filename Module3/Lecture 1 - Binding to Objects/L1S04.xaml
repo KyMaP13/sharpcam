@@ -1,0 +1,28 @@
+﻿<Window x:Class="L1S04"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="L1S04" Height="300" Width="300">
+    <StackPanel Margin="10">  
+        <StackPanel>
+            <Label>Авторы:</Label>
+            <TextBox Text="{Binding Authors}"/>
+            <Label>Название:</Label>
+            <TextBox Text="{Binding Title}"/>
+            <Label>ISBN:</Label>
+            <TextBox>
+                <TextBox.Text>
+                    <Binding Path="ISBN" UpdateSourceTrigger="PropertyChanged">
+                        <Binding.ValidationRules>
+                            <ExceptionValidationRule/>
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+            </TextBox>
+            <CheckBox IsChecked="{Binding InStock}">Есть на складе?</CheckBox>
+        </StackPanel>
+        
+        <StackPanel Orientation="Horizontal" FlowDirection="RightToLeft">
+            <Button Width="100"  Click="CmOk">OK</Button>
+         </StackPanel>
+    </StackPanel>
+</Window>

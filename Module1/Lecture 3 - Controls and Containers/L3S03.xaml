@@ -1,0 +1,13 @@
+﻿<Window x:Class="L3S03"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="L3S03" Height="300" Width="300">
+    <DockPanel>
+        <Label Content="Bottom" DockPanel.Dock="Bottom" Background="Bisque"></Label>
+        <Label Content="Left" DockPanel.Dock="Left" Background="PaleTurquoise"></Label>
+        <Label Content="Top" DockPanel.Dock="Top" Background="Cornsilk"></Label>
+        <Label Content="Top again" DockPanel.Dock="Top" Background="DodgerBlue"></Label>
+        <Label Content="Top ever again" DockPanel.Dock="Top" Background="Azure"></Label>
+        <Label Content="Last child" Background="Olive"></Label>
+    </DockPanel>
+</Window>

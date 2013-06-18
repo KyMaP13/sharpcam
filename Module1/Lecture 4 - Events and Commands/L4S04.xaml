@@ -1,0 +1,28 @@
+﻿<Window x:Class="L4S04"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="L4S04" Height="300" Width="300">
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="Правка">
+                <MenuItem Header="Вырезать" Command="Test"/>
+            </MenuItem>
+        </Menu>
+        <ToolBar DockPanel.Dock="Top">
+            <Button Command="Test">Вырезать</Button>
+        </ToolBar>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <TextBox>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</TextBox>
+            <ListBox Name="list" Grid.Row="1">
+                <ListBoxItem>Варшава</ListBoxItem>
+                <ListBoxItem>Париж</ListBoxItem>
+                <ListBoxItem>Берлин</ListBoxItem>
+                <ListBoxItem>Прага</ListBoxItem>
+            </ListBox>
+        </Grid>
+    </DockPanel>
+</Window>

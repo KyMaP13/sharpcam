@@ -1,0 +1,15 @@
+﻿<Window x:Class="L2S03"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Height="150" Width="150">
+    <Button Click="Button_Click">Hello, WPF!</Button>
+    <x:Code>
+        <![CDATA[
+private void Button_Click(object sender, RoutedEventArgs e)
+{
+MessageBox.Show("Hello WPF again!");
+}
+]]>
+    </x:Code>
+</Window>
+   

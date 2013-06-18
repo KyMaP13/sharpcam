@@ -1,0 +1,287 @@
+﻿<Window x:Class="Viewer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:model="clr-namespace:Model;assembly=Model"
+        xmlns:viewer="clr-namespace:Viewer"
+        xmlns:sharpGL="clr-namespace:SharpGL.WPF;assembly=SharpGL.WPF"
+        Title="MainWindow" Height="600" Width="1024" >
+    <Window.Resources>
+        <viewer:Converter x:Key="converter" />
+        <Style x:Key="ButtonDelStyle" TargetType="Button">
+            <Setter Property="MinWidth" Value="15"/>
+            <Setter Property="Height" Value="15" />
+            <Setter Property="Padding" Value="0" />
+        </Style>
+        <Style x:Key="TextBoxStyle" TargetType="TextBox">
+            <Setter Property="MinWidth" Value="60"/>
+            <Setter Property="Height" Value="20" />
+            <Setter Property="Padding" Value="0" />
+        </Style>
+        <Style x:Key="LabelStyle" TargetType="Label">
+            <Setter Property="MinWidth" Value="60"/>
+            <Setter Property="Height" Value="20" />
+            <Setter Property="Padding" Value="0" />
+        </Style>
+        <Style x:Key="OperationName" TargetType="Label">
+            <Setter Property="MinWidth" Value="60"/>
+            <Setter Property="Height" Value="20" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="FontSize" Value="14" />
+        </Style>
+
+        <!-- Project view (with conversion): expands to settings and operation list-->
+        <!--
+        <HierarchicalDataTemplate DataType="{x:Type model:Project}">
+            <HierarchicalDataTemplate.ItemsSource>
+                <MultiBinding
+                            Converter="{StaticResource converter}"
+                            ConverterParameter="Settings:, Operations:">
+                    <Binding Path="Settings" />
+                    <Binding Path="Operations" />
+                </MultiBinding>
+            </HierarchicalDataTemplate.ItemsSource>
+            <Label Style="{StaticResource LabelStyle}" Content="Project" />
+        </HierarchicalDataTemplate>
+        -->
+        <!--ProjectSettings view: width, height, etc. -->
+        <DataTemplate DataType="{x:Type model:ProjectSettings}">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Style="{StaticResource LabelStyle}"  >Length</Label>
+                    <TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding Length}"></TextBox>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Style="{StaticResource LabelStyle}" >Height</Label>
+                    <TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding Height}"></TextBox>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Style="{StaticResource LabelStyle}">Width</Label>
+                    <TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding Width}"></TextBox>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Style="{StaticResource LabelStyle}">Tool diam</Label>
+                    <TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding ToolDiam}"></TextBox>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Style="{StaticResource LabelStyle}">Safe distance</Label>
+                    <TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding SafeDistance}"></TextBox>
+                </StackPanel>
+            </StackPanel>
+        </DataTemplate>
+        <!--Operation view: content (Shape) + expanding list (Locations) -->
+        <HierarchicalDataTemplate DataType="{x:Type model:Operation}">
+            <!-- ??? why not just ItemsSource? -->
+            <HierarchicalDataTemplate.ItemsSource>
+                <MultiBinding
+                    Converter="{StaticResource converter}"
+                    ConverterParameter=",">
+                    <Binding Path="Location" />
+                    <Binding Path="Location.Locations" />  
+                </MultiBinding>
+            </HierarchicalDataTemplate.ItemsSource>
+            <ContentPresenter >
+                <ContentPresenter.Content>
+                    <!-- Content="{Binding Path='Shape'}" -->
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal">
+                            <Label Style="{StaticResource OperationName}"  Content="{Binding Shape.Name}" />
+                            <Button Style="{StaticResource ButtonDelStyle}" Click="DeleteClick" Content="Del"/>
+                            <Button Click="UpClick" Content="Up"/>
+                            <Button Click="DownClick" Content="Down"/>
+                        </StackPanel>
+                        <Frame Content="{Binding Path='Shape'}"></Frame>
+                    </StackPanel>
+                    
+                </ContentPresenter.Content>
+
+            </ContentPresenter>
+        </HierarchicalDataTemplate>
+        
+        <!--BoltHole view-->
+        <DataTemplate DataType="{x:Type model:BoltHole}">
+            <StackPanel Orientation="Vertical">
+                
+                <StackPanel Orientation="Horizontal">
+                    <Label Style="{StaticResource LabelStyle}"  Content="Radius = " />
+                    <TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding Radius}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Style="{StaticResource LabelStyle}"  Content="Length = " />
+                    <TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding Length}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Style="{StaticResource LabelStyle}"  Content="radius = " />
+                    <TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding radius}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Style="{StaticResource LabelStyle}"  Content="LengthAll = " />
+                    <TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding lenAll}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Style="{StaticResource LabelStyle}"  Content="Y = " />
+                    <TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding Y}" />
+                </StackPanel>
+            </StackPanel>        
+        </DataTemplate>
+        
+        <!--Pocket view-->
+        <DataTemplate DataType="{x:Type model:Pocket}">
+            <StackPanel Orientation="Vertical">
+                <StackPanel Orientation="Horizontal">
+                    <Label Style="{StaticResource LabelStyle}"  Content="height = " />
+                    <TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding height}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Style="{StaticResource LabelStyle}"  Content="length = " />
+                    <TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding length}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Style="{StaticResource LabelStyle}"  Content="width = " />
+                    <TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding width}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Style="{StaticResource LabelStyle}"  Content="Y = " />
+                    <TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding Y}" />
+                </StackPanel>
+            </StackPanel>
+        </DataTemplate>
+
+        <!--MatrixLocations view: пока не используется, пригодится позже-->
+        <DataTemplate DataType="{x:Type model:MatrixLocations}">
+            <StackPanel Orientation="Vertical">
+                <Label Style="{StaticResource LabelStyle}"  Content="martix:" />
+                <StackPanel Orientation="Horizontal">
+                    <Label Style="{StaticResource LabelStyle}"  Content="X padding = " />
+                    <TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding XPadding}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Style="{StaticResource LabelStyle}"  Content="Y padding = " />
+                    <TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding YPadding}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Style="{StaticResource LabelStyle}"  Content="Columns = " />
+                    <TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding ColumnCount}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Style="{StaticResource LabelStyle}"  Content="Rows = " />
+                    <TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding RowCount}" />
+                </StackPanel>
+            </StackPanel>
+        </DataTemplate>
+
+        <!--CustomLocations view-->
+        <DataTemplate DataType="{x:Type model:CustomLocations}" >
+            <StackPanel Orientation="Vertical">
+                <Label Style="{StaticResource LabelStyle}"  
+                       Content="Custom Locations (frames):" />
+            </StackPanel>
+        </DataTemplate>
+        
+        <!--Profile view - не нужен? -->
+        <HierarchicalDataTemplate DataType="{x:Type model:Profile}" 
+                                  ItemsSource="{Binding Path=Points}" >
+            <Label Style="{StaticResource LabelStyle}"  Content="Profile PointList (points):" />
+        </HierarchicalDataTemplate>
+        
+        <!--Frame view-->
+        <DataTemplate DataType="{x:Type model:Frame}">
+            <StackPanel Orientation="Vertical">
+                <Button Click="AddClick" Content="Add"/>
+                <Button Click="DeleteClick" Content="Del"/>
+                <Label Style="{StaticResource LabelStyle}"  Content="this is frame" />
+                <StackPanel Orientation="Horizontal">
+                    <Label Style="{StaticResource LabelStyle}"  Content="x = " />
+                    <TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding Path=X}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Style="{StaticResource LabelStyle}"  Content="y = " />
+                    <TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding Path=Y}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Style="{StaticResource LabelStyle}"  Content="angle = " />
+                    <TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding Path=Angle}" />
+                </StackPanel>
+            </StackPanel>
+        </DataTemplate>
+        
+        <!--Point view-->
+        <DataTemplate DataType="{x:Type model:GcamPoint}">
+            <StackPanel Orientation="Vertical">
+                <Label Style="{StaticResource LabelStyle}"  Content="this is point" />
+                <StackPanel Orientation="Horizontal">
+                    <Label Style="{StaticResource LabelStyle}"  Content="x = " />
+                    <TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding Path=X}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Style="{StaticResource LabelStyle}"  Content="y = " />
+                    <TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding Path=Y}" />
+                </StackPanel>
+            </StackPanel>
+        </DataTemplate>
+
+        <!-- data template for FolderItem instances -->
+        <HierarchicalDataTemplate DataType="{x:Type viewer:ContainerNode}"
+                              ItemsSource="{Binding Path=Items}">
+            <Label Style="{StaticResource LabelStyle}"  Content="{Binding Path=Name}" />
+        </HierarchicalDataTemplate>
+
+
+
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20" />
+            <RowDefinition Height="40" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Menu Grid.ColumnSpan="2" Grid.Row="0">
+            <MenuItem Header="File">
+                <MenuItem Header="New"></MenuItem>
+                <MenuItem Header="Open"></MenuItem>
+                <MenuItem Header="Save"></MenuItem>
+                <MenuItem Header="SaveAs..."></MenuItem>
+                <Separator></Separator>
+                <MenuItem Header="Create trajectory" Click="_gcodeTrajectory"></MenuItem>
+                <MenuItem Header="Export GCode..." Click="_gcodeExport"></MenuItem>
+                <Separator></Separator>
+                <MenuItem Header="Exit"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="Edit">
+            </MenuItem>
+            <MenuItem Header="Operations">
+                <MenuItem Header="New BoltHole" Click="button1_Click"></MenuItem>
+                <MenuItem Header="New Pocket" Click="button3_Click"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="View">
+            </MenuItem>
+            <MenuItem Header="Help">
+            </MenuItem>
+        </Menu>
+        <Menu Grid.ColumnSpan ="2" Grid.Row="1">
+            <Button Content="as" Width="30" Height="30" Name="As"/>
+            <Button Content="Bolt" Width="30" Height="30" Name="BoltHolePic" Click="button1_Click"/>
+            <Button Content="Pocket" Width="30" Height="30" Name="PocketPic" Click="button3_Click"/>
+        </Menu>
+        <sharpGL:OpenGLControl OpenGLDraw="OpenGLControl_OpenGLDraw"
+                               OpenGLInitialized="OpenGLControl_OpenGLInitialized"
+                               Resized="OpenGLControl_Resized"
+                               Mouse.MouseWheel="OpenGLControl_MouseWheel" 
+                               MouseMove="OpenGLControl_MouseMove" Margin="0,0,0,0" Grid.Column="2" Grid.Row="2"/>
+        <Label Content="X:   0" Grid.Column="1" Grid.Row="2" Margin="0,0,50,0" Name="label3" HorizontalAlignment="Right" Width="50" Height="25" VerticalAlignment="Bottom" FontFamily="Times New Roman" />
+        <Label Content="Y:   0" Grid.Column="1" Grid.Row="2" Name="label4" HorizontalAlignment="Right" Width="50" Height="25" VerticalAlignment="Bottom" FontFamily="Times New Roman" />
+        <TreeView Background="LightGoldenrodYellow" VerticalAlignment="Stretch" Name="OperationsTree" Width="200" Grid.Row="2" Margin="0,0,0,85" />
+        <StackPanel Name="stackPanel2" Height="79" Grid.Row="2" VerticalAlignment="Bottom">
+                <Button Content="New BoltHole" Height="38" Name="button1" Width="166" Click="button1_Click" />
+                <Button Content="New Pocket" Height="38" Name="button3" Width="166" Click="button3_Click" />
+            </StackPanel>
+        <Label Content="Label" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" Height="28" HorizontalAlignment="Left" Margin="346,16,0,0" Name="label1" VerticalAlignment="Top" />
+        <Label Content="Label" Grid.Column="1" Grid.Row="1" Height="28" HorizontalAlignment="Left" Margin="403,12,0,0" Name="label2" VerticalAlignment="Top" />
+        <Button Content="Del" Grid.Row="1" Height="30" HorizontalAlignment="Left" Margin="170,2,0,0" Name="button2" VerticalAlignment="Top" Width="30" Click="button2_Click" />
+    </Grid>
+</Window>

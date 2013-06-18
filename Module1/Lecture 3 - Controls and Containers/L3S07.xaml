@@ -1,0 +1,28 @@
+﻿<Window x:Class="L3S07"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="L3S07" Height="300" Width="300">
+    <TabControl>
+        <TabItem Header="Занятость">
+            <GroupBox Header="График работы">
+                <StackPanel>
+                    <RadioButton>Полный рабочий день</RadioButton>
+                    <RadioButton>Полставки</RadioButton>
+                    <RadioButton>Свободный график</RadioButton>
+                </StackPanel>
+            </GroupBox>    
+        </TabItem>
+        <TabItem Header="Бухгалтерские данные">
+            <StackPanel>
+                <Expander Header="Банк">
+                    <StackPanel>
+                        <Label>Наименование банка</Label>
+                        <TextBox></TextBox>
+                        <Label>Номер счета</Label>
+                        <TextBox></TextBox>
+                    </StackPanel>
+                </Expander>
+            </StackPanel>
+        </TabItem>
+    </TabControl>
+</Window>
