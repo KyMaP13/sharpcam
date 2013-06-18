@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Model", "Model\Model.csproj", "{027D6A34-129A-46A1-90F7-DFC84506B58A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Translator", "Translator\Translator.csproj", "{CE548B45-BDB0-46F6-8347-1FFDBC892335}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Viewer", "Viewer\Viewer.csproj", "{BEA95CCA-48ED-4B15-90CC-E79E0D5A3ACB}"
 EndProject
 Global
@@ -27,16 +25,6 @@ Global
 		{027D6A34-129A-46A1-90F7-DFC84506B58A}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{027D6A34-129A-46A1-90F7-DFC84506B58A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{027D6A34-129A-46A1-90F7-DFC84506B58A}.Release|x86.ActiveCfg = Release|Any CPU
-		{CE548B45-BDB0-46F6-8347-1FFDBC892335}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CE548B45-BDB0-46F6-8347-1FFDBC892335}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CE548B45-BDB0-46F6-8347-1FFDBC892335}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{CE548B45-BDB0-46F6-8347-1FFDBC892335}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{CE548B45-BDB0-46F6-8347-1FFDBC892335}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{CE548B45-BDB0-46F6-8347-1FFDBC892335}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CE548B45-BDB0-46F6-8347-1FFDBC892335}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CE548B45-BDB0-46F6-8347-1FFDBC892335}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{CE548B45-BDB0-46F6-8347-1FFDBC892335}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{CE548B45-BDB0-46F6-8347-1FFDBC892335}.Release|x86.ActiveCfg = Release|Any CPU
 		{BEA95CCA-48ED-4B15-90CC-E79E0D5A3ACB}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{BEA95CCA-48ED-4B15-90CC-E79E0D5A3ACB}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
 		{BEA95CCA-48ED-4B15-90CC-E79E0D5A3ACB}.Debug|Mixed Platforms.Build.0 = Debug|x86
