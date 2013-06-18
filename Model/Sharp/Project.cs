@@ -13,6 +13,7 @@ namespace Model
         private double _width;
         private double _tooldiam;
         private double _safedist;
+        private double _feedrate;
 
         public double Length{
             get
@@ -69,6 +70,18 @@ namespace Model
             {
                 _safedist = value;
                 OnPropertyChanged("Safe distance");
+            }
+        }
+        public double FeedRate
+        {
+            get
+            {
+                return _feedrate;
+            }
+            set
+            {
+                _feedrate = value;
+                OnPropertyChanged("Feed rate");
             }
         }
     }

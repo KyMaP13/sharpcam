@@ -67,6 +67,10 @@
                     <Label Style="{StaticResource LabelStyle}">Safe distance</Label>
                     <TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding SafeDistance}"></TextBox>
                 </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Style="{StaticResource LabelStyle}">Feed rate</Label>
+                    <TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding FeedRate}"></TextBox>
+                </StackPanel>
             </StackPanel>
         </DataTemplate>
         <!--Operation view: content (Shape) + expanding list (Locations) -->
@@ -264,7 +268,6 @@
             </MenuItem>
         </Menu>
         <Menu Grid.ColumnSpan ="2" Grid.Row="1">
-            <Button Content="as" Width="30" Height="30" Name="As"/>
             <Button Content="Bolt" Width="30" Height="30" Name="BoltHolePic" Click="button1_Click"/>
             <Button Content="Pocket" Width="30" Height="30" Name="PocketPic" Click="button3_Click"/>
         </Menu>
@@ -280,8 +283,8 @@
                 <Button Content="New BoltHole" Height="38" Name="button1" Width="166" Click="button1_Click" />
                 <Button Content="New Pocket" Height="38" Name="button3" Width="166" Click="button3_Click" />
             </StackPanel>
-        <Label Content="Label" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" Height="28" HorizontalAlignment="Left" Margin="346,16,0,0" Name="label1" VerticalAlignment="Top" />
-        <Label Content="Label" Grid.Column="1" Grid.Row="1" Height="28" HorizontalAlignment="Left" Margin="403,12,0,0" Name="label2" VerticalAlignment="Top" />
+        <Label Content="test1" Grid.Column="1" Grid.Row="1" Height="28" HorizontalAlignment="Left" Margin="702,4,0,0" Name="label1" VerticalAlignment="Top" />
+        <Label Content="test2" Grid.Column="1" Grid.Row="1" Height="28" HorizontalAlignment="Left" Margin="752,4,0,0" Name="label2" VerticalAlignment="Top" />
         <Button Content="Del" Grid.Row="1" Height="30" HorizontalAlignment="Left" Margin="170,2,0,0" Name="button2" VerticalAlignment="Top" Width="30" Click="button2_Click" />
     </Grid>
 </Window>

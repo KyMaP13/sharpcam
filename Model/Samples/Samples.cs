@@ -50,7 +50,8 @@ namespace Model.Samples
                         Width = 40,
                         Length = 40,
                         ToolDiam = 2,
-                        SafeDistance = 15
+                        SafeDistance = 15,
+                        FeedRate = 500
                     }
                 };
             }
