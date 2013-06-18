@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Windows;
-//using System.Windows.Controls;
 using System.Windows.Input;
 using SharpGL;
 using SharpGL.SceneGraph;
@@ -131,7 +130,7 @@ namespace Viewer
                     var boltlocation = operations[i].Location.LocationsList.GetEnumerator();
                     while (boltlocation.MoveNext())
                     {
-                        if (Bolt.modified || boltlocation.Current.modified)
+                        if (Bolt.modified || boltlocation.Current.modified || detailCache.Count<=i)
                         {
 
                             try
@@ -158,7 +157,7 @@ namespace Viewer
                     var poclocation = operations[i].Location.LocationsList.GetEnumerator();
                     while (poclocation.MoveNext())
                     {
-                        if (Poc.modified || poclocation.Current.modified)
+                        if (Poc.modified || poclocation.Current.modified || detailCache.Count <= i)
                         {
                             try
                             {
@@ -342,6 +341,7 @@ namespace Viewer
             SmartItem item = ((System.Windows.Controls.Button)sender).DataContext as SmartItem;
             if (item != null)
             {
+                detailCache.Clear();
                 item.MoveUpEvent();
             }
             Tree.GCode.flush();
@@ -351,6 +351,7 @@ namespace Viewer
             SmartItem item = ((System.Windows.Controls.Button)sender).DataContext as SmartItem;
             if (item != null)
             {
+                detailCache.Clear();
                 item.MoveDownEvent();
             }
             Tree.GCode.flush();
