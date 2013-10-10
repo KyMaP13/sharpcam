@@ -1,407 +1,345 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Model.Primitives;
 using Model.Storages;
 using System.Windows;
+using Model.Tree;
 
 namespace Model
 {
-    public class GCodeGenerator
+    public static class GCodeGenerator
     {
-        public static List<String> gcode = new List<String>();
-//       public static List<List<double[]>> point = new List<List<double[]>>();
-        public static TrajectoryStorage trajectoryStor = new TrajectoryStorage();
+        public static readonly List<String> Gcode = new List<String>();
+        public static readonly TrajectoryStorage TrajectoryStor = new TrajectoryStorage();
 
-        private static void init(double safe_dist)
+        private static void Init(double safeDist)
         {
-            gcode.Add("G21");                           // Метрическая система
-            gcode.Add("G90");                           // Абсолютное позиционирование
-            gcode.Add("F180.000");                        // Скорость подачи 3мм в сек, не уверен
-            gcode.Add("");
-            gcode.Add("G00 Z" + Convert.ToString(safe_dist));                  // Холостой ход, поднятие фрезы на 5см над поверхностью
-            gcode.Add("G00 X0,00000 Y0,00000");         // Холостой ход в начало системы координат
+            Gcode.Add("G21");                           // Метрическая система
+            Gcode.Add("G90");                           // Абсолютное позиционирование
+            Gcode.Add("F180.000");                        // Скорость подачи 3мм в сек, не уверен
+            Gcode.Add("");
+            Gcode.Add("G00 Z" + Convert.ToString(safeDist));                  // Холостой ход, поднятие фрезы на 5см над поверхностью
+            Gcode.Add("G00 X0,00000 Y0,00000");         // Холостой ход в начало системы координат
         }
 
-        private static void end(double safe_dist)
+        private static void EndMills(double safeDist)
         {
-            GCodeGenerator.separator();
-            GCodeGenerator.G00_Z(safe_dist);
-            GCodeGenerator.G00_X(0);
-            GCodeGenerator.G00_Y(0);
-            GCodeGenerator.end();
+            Separator();
+            G00Z(safeDist);
+            G00X(0);
+            G00Y(0);
+            EndMills();
         }
 
-        private static void end()
+        private static void EndMills()
         {
-            gcode.Add("M30");                           // Конец
+            Gcode.Add("M30");                           // Конец
         }
 
-        private static void separator()
+        private static void Separator()
         {
-            gcode.Add("");
+            Gcode.Add("");
         }
 
-        private static void G01_X(double x)
+        private static void G01X(double x)
         {
-            GCodeGenerator.gcode.Add("G01 X" + Convert.ToString(x));
+            Gcode.Add(string.Format("G01 X{0}", Convert.ToString(x)));
         }
 
-        private static void G01_Y(double y)
+        private static void G01Y(double y)
         {
-            GCodeGenerator.gcode.Add("G01 Y" + Convert.ToString(y));
+            Gcode.Add(string.Format("G01 Y{0}", Convert.ToString(y)));
         }
 
-        private static void G01_Z(double z)
+        private static void G01Z(double z)
         {
-            GCodeGenerator.gcode.Add("G01 Z" + Convert.ToString(z));
+            Gcode.Add("G01 Z" + Convert.ToString(z));
         }
 
-        private static void G01_XY(double x, double y)
+        private static void G01Xy(double x, double y)
         {
-            GCodeGenerator.gcode.Add("G01 X" + Convert.ToString(x) + " Y" + Convert.ToString(y));
+            Gcode.Add("G01 X" + Convert.ToString(x) + " Y" + Convert.ToString(y));
         }
 
         private static void G02(double r, Point center)
         {
-            GCodeGenerator.gcode.Add("G02 X" + Convert.ToString(center.X - r) + " Y" + Convert.ToString(center.Y) + " I" + Convert.ToString(center.X) + " J" + Convert.ToString(center.Y));
+            Gcode.Add("G02 X" + Convert.ToString(center.X - r) + " Y" + Convert.ToString(center.Y) + " I" + Convert.ToString(center.X) + " J" + Convert.ToString(center.Y));
         }
 
-        private static void G00_X(double x)
+        private static void G00X(double x)
         {
-            GCodeGenerator.gcode.Add("G00 X" + Convert.ToString(x));
+            Gcode.Add("G00 X" + Convert.ToString(x));
         }
 
-        private static void G00_Y(double y)
+        private static void G00Y(double y)
         {
-            GCodeGenerator.gcode.Add("G00 Y" + Convert.ToString(y));
+            Gcode.Add("G00 Y" + Convert.ToString(y));
         }
 
-        private static void G00_Z(double z)
+        private static void G00Z(double z)
         {
-            GCodeGenerator.gcode.Add("G00 Z" + Convert.ToString(z));
+            Gcode.Add("G00 Z" + Convert.ToString(z));
         }
 
-        private static void G_Set_FeedRate(double feed_rate)
+        private static void GSetFeedRate(double feedRate)
         {
-            GCodeGenerator.gcode.Add("F" + Convert.ToString(feed_rate));
-        }
-//////////////////////////////////////////////////////////////////////////////
-        private static void AddModel(List<ExtendedOpenGLPoint> list)
-        {
-            trajectoryStor.AddModel(list);      // добавление нового листа который содержит список точек (траекторию)
+            Gcode.Add("F" + Convert.ToString(feedRate));
         }
 
-/*        private static void Add_Point(List<double[]> list, double x, double y, double z)
+        private static void AddModel(List<ExtendedOpenGlPoint> list)
         {
-            double[] point = {x, y, z};
-            list.Add(point);                // тут в каждый лист (те каждую модель) вставляются точки для отрисовки траекторий
-        }*/
+            TrajectoryStor.AddModel(list);      // добавление нового листа который содержит список точек (траекторию)
+        }
 
-        public static void generate(Model.Project project)
+        public static void Generate(Project project)
         {
-            GCodeGenerator.flush();
-            GCodeGenerator.init(project.Settings.SafeDistance + project.Settings.Height);
+            Flush();
+            Init(project.Settings.SafeDistance + project.Settings.Height);
 
-            foreach (Model.Operation iter in project.Operations)
+            foreach (var iter in project.Operations)
             {
-                if (iter.Shape.Name.Substring(0,6) == "BoltHo")
-                    GCodeGenerator.G_BoltHole(project, iter);
-                if (iter.Shape.Name.Substring(0,6) == "Pocket")
-                    GCodeGenerator.G_Pocket(project, iter);
+                if (iter.Shape.Name.Substring(0, 6) == "BoltHo") GBoltHole(project, iter);
+                if (iter.Shape.Name.Substring(0, 6) == "Pocket") GPocket(project, iter);
             }
 
-            GCodeGenerator.end(project.Settings.SafeDistance + project.Settings.Height);
+            EndMills(project.Settings.SafeDistance + project.Settings.Height);
         }
 
-        private static void G_BoltHole(Model.Project project, Model.Operation iter)
+        private static void GBoltHole(Project project, Operation iter)
         {
-            double R = ((Model.BoltHole)iter.Shape).Radius;
-            double r = ((Model.BoltHole)iter.Shape).radius;
-            double lenAll = ((Model.BoltHole)iter.Shape).lenAll;
-            double len = ((Model.BoltHole)iter.Shape).Length;
-            double tooldiam = project.Settings.ToolDiam;
-            double stepY = 1;
+            var externalRadius = ((BoltHole)iter.Shape).Radius;
+            var internalRadius = ((BoltHole)iter.Shape).InternalRadius;
+            var lenAll = ((BoltHole)iter.Shape).LenAll;
+            var len = ((BoltHole)iter.Shape).Length;
+            var tooldiam = project.Settings.ToolDiam;
+            const double stepY = 1;
 
-            double Y = ((Model.BoltHole)iter.Shape).Y;
-            double stepR = (R - r) / ((lenAll - len) / stepY); // рассчитываем шаг для радиуса
+            var stepR = (externalRadius - internalRadius) / ((lenAll - len) / stepY); // рассчитываем шаг для радиуса
 
             var enumerator = iter.Location.LocationsList.GetEnumerator();
             while (enumerator.MoveNext())
             {
-                List<ExtendedOpenGLPoint> list = new List<ExtendedOpenGLPoint>();
-                float[] color = new float[3] {0,0,0};
-//                GCodeGenerator.Add_Model(list);
-                
-                Point Center = new Point(enumerator.Current.X, enumerator.Current.Y);
+                var list = new List<ExtendedOpenGlPoint>();
+                var color = new float[] { 0, 0, 0 };
+                //                GCodeGenerator.Add_Model(list);
+
+                var center = new Point(enumerator.Current.X, enumerator.Current.Y);
                 list.Add(
-                    new ExtendedOpenGLPoint
+                    new ExtendedOpenGlPoint
                     (
-                        Center.X, 
-                        project.Settings.Height + project.Settings.SafeDistance, 
-                        Center.Y,
+                        center.X,
+                        project.Settings.Height + project.Settings.SafeDistance,
+                        center.Y,
                         0,
-                        new float[3] {0,0,0}
+                        new float[] { 0, 0, 0 }
                     )
                 );
 
-                GCodeGenerator.G00_Z(project.Settings.SafeDistance);
-                GCodeGenerator.G00_X(Center.X);
-                GCodeGenerator.G00_Y(Center.Y);
-                GCodeGenerator.G01_Z(project.Settings.Height);
+                G00Z(project.Settings.SafeDistance);
+                G00X(center.X);
+                G00Y(center.Y);
+                G01Z(project.Settings.Height);
 
-                double stR = R;
-                double stY = Y;
-                if (R >= tooldiam)
+                var stR = externalRadius;
+
+                if (externalRadius >= tooldiam)
                 {
-                    for (int i = 0; i <= (lenAll - len) / stepY; i++, stR -= stepR)
+                    for (var i = 0; i <= (lenAll - len) / stepY; i++, stR -= stepR)
                     {
-                        for (int j = 0; j < stR / tooldiam; j++)
+                        for (var j = 0; j < stR / tooldiam; j++)
                         {
-                            GCodeGenerator.Circle(list, j * tooldiam, project.Settings.Height - i * stepY, Center);
-                            GCodeGenerator.G02(j * tooldiam, Center);
-                            if (j + 1 < R / (2 * tooldiam))
-                            {
-                                list.Add(
-                                    new ExtendedOpenGLPoint
-                                        (
-                                        Center.X,
-                                        project.Settings.Height - i * stepY,
-                                        Center.Y + j * tooldiam,
-                                        0,
-                                        new float[3] {0,0,0}
-                                        )
-                                );
-                                GCodeGenerator.G01_XY(Center.X, Center.Y + j * tooldiam);
-                            }
+                            Circle(list, j * tooldiam, project.Settings.Height - i * stepY, center);
+                            G02(j * tooldiam, center);
+                            if (!(j + 1 < externalRadius / (2 * tooldiam))) continue;
+                            list.Add(new ExtendedOpenGlPoint(
+                                    center.X,
+                                    project.Settings.Height - i * stepY,
+                                    center.Y + j * tooldiam,
+                                    0,
+                                    new float[] { 0, 0, 0 }));
+                            G01Xy(center.X, center.Y + j * tooldiam);
                         }
                         /* Сюда надо вставить заключительный проход по окружности */
-                        list.Add(
-                            new ExtendedOpenGLPoint
-                            (
-                                Center.X, 
-                                project.Settings.Height - i * stepY, 
-                                Center.Y,
+                        list.Add(new ExtendedOpenGlPoint(
+                                center.X,
+                                project.Settings.Height - i * stepY,
+                                center.Y,
                                 0,
-                                new float[3] {0,0,0}
-                            )
-                        );
-                        GCodeGenerator.G01_XY(Center.X, Center.Y);
-                        GCodeGenerator.separator();
-                        if (i + 1 < len)
-                        {
-                            list.Add(
-                                new ExtendedOpenGLPoint
-                                (
-                                    Center.X, 
-                                    project.Settings.Height - (i + 1) * stepY, 
-                                    Center.Y,
-                                    0,
-                                    new float[3] {0,0,0}
-                                    )
-                                );
-                            GCodeGenerator.G01_Z(project.Settings.Height - (i + 1) * stepY);
-                        }
+                                new float[] { 0, 0, 0 }));
+                        G01Xy(center.X, center.Y);
+                        Separator();
+                        if (!(i + 1 < len)) continue;
+                        list.Add(
+                            new ExtendedOpenGlPoint(
+                                center.X,
+                                project.Settings.Height - (i + 1) * stepY,
+                                center.Y,
+                                0,
+                                new float[] { 0, 0, 0 }));
+                        G01Z(project.Settings.Height - (i + 1) * stepY);
                     }
 
-                    for (double i = len; i <= lenAll / stepY; i++)
+                    for (var i = len; i <= lenAll / stepY; i++)
                     {
-                        for (int j = 0; j < r / tooldiam; j++)
+                        for (var j = 0; j < internalRadius / tooldiam; j++)
                         {
-                            GCodeGenerator.Circle(list, j * tooldiam, project.Settings.Height - i * stepY, Center);
-                            GCodeGenerator.G02(j * tooldiam, Center);
-                            if (j + 1 < r / (2 * tooldiam))
-                            {
-                                list.Add(
-                                    new ExtendedOpenGLPoint
-                                    (
-                                        Center.X, 
-                                        project.Settings.Height - i * stepY, 
-                                        Center.Y + j * tooldiam,
-                                        0,
-                                        new float[3] {0,0,0}
-                                    )
-                                );
-                                GCodeGenerator.G01_XY(Center.X, Center.Y + j * tooldiam);
-                            }
+                            Circle(list, j * tooldiam, project.Settings.Height - i * stepY, center);
+                            G02(j * tooldiam, center);
+                            if (!(j + 1 < internalRadius / (2 * tooldiam))) continue;
+                            list.Add(new ExtendedOpenGlPoint(
+                                    center.X,
+                                    project.Settings.Height - i * stepY,
+                                    center.Y + j * tooldiam,
+                                    0,
+                                    new float[] { 0, 0, 0 }));
+                            G01Xy(center.X, center.Y + j * tooldiam);
                         }
                         /* Сюда надо вставить заключительный проход по окружности */
-                        list.Add(
-                                new ExtendedOpenGLPoint
-                                (
-                                    Center.X, 
-                                    project.Settings.Height - i * stepY, 
-                                    Center.Y,
+                        list.Add(new ExtendedOpenGlPoint(
+                                    center.X,
+                                    project.Settings.Height - i * stepY,
+                                    center.Y,
                                     0,
-                                    new float[3] {0,0,0}
-                                )
-                        );
-                        GCodeGenerator.G01_XY(Center.X, Center.Y);
-                        GCodeGenerator.separator();
-                        if (i + 1 < len)
-                        {
-                            list.Add(
-                                new ExtendedOpenGLPoint
-                                (
-                                    Center.X, 
-                                    project.Settings.Height - (i + 1) * stepY, 
-                                    Center.Y,
-                                    0,
-                                    new float[3] {0,0,0}
-                                )
-                            );
-                            GCodeGenerator.G01_Z(project.Settings.Height - (i + 1) * stepY);
-                        }
-                    }
-                    list.Add(
-                            new ExtendedOpenGLPoint
-                            (
-                                Center.X, 
-                                project.Settings.Height + project.Settings.SafeDistance, 
-                                Center.Y,
+                                    new float[] { 0, 0, 0 }));
+                        G01Xy(center.X, center.Y);
+                        Separator();
+                        if (!(i + 1 < len)) continue;
+                        list.Add(new ExtendedOpenGlPoint(
+                                center.X,
+                                project.Settings.Height - (i + 1) * stepY,
+                                center.Y,
                                 0,
-                                new float[3] {0,0,0}
-                            )
-                    );
-                    GCodeGenerator.G01_Z(project.Settings.Height + 2);
-                    GCodeGenerator.G00_Z(project.Settings.Height + project.Settings.SafeDistance);
-                    GCodeGenerator.separator();
+                                new float[] { 0, 0, 0 }));
+                        G01Z(project.Settings.Height - (i + 1) * stepY);
+                    }
+                    list.Add(new ExtendedOpenGlPoint(
+                                center.X,
+                                project.Settings.Height + project.Settings.SafeDistance,
+                                center.Y,
+                                0,
+                                new float[] { 0, 0, 0 }));
+                    G01Z(project.Settings.Height + 2);
+                    G00Z(project.Settings.Height + project.Settings.SafeDistance);
+                    Separator();
                 }
-                trajectoryStor.AddModel(list);
+                TrajectoryStor.AddModel(list);
             }
         }
 
-        private static void Circle(List<ExtendedOpenGLPoint> list, double r, double y, Point Center)
+        private static void Circle(ICollection<ExtendedOpenGlPoint> list, double r, double y, Point center)
         {
-            int n = (int)Math.Round(r) * 20;
-            Point start = new Point();
-            for (int i = 0; i < n; i++)
+            var n = (int)Math.Round(r) * 20;
+            var start = new Point();
+            for (var i = 0; i < n; i++)
             {
-                double angle = 2 * Math.PI * i / n;
+                var angle = 2 * Math.PI * i / n;
                 if (i == 0)
                 {
                     start.X = Math.Round(r * Math.Sin(angle), 5);
                     start.Y = Math.Round(r * Math.Cos(angle), 5);
                 }
-                list.Add(
-                    new ExtendedOpenGLPoint(
-                        r * Math.Sin(angle) + Center.X,
+                list.Add(new ExtendedOpenGlPoint(
+                        r * Math.Sin(angle) + center.X,
                         y,
-                        r * Math.Cos(angle) + Center.Y,
+                        r * Math.Cos(angle) + center.Y,
                         0,
-                        new float[3] {0,0,0}
-                    )
-                );
+                        new float[] { 0, 0, 0 }));
             }
-            list.Add(
-                new ExtendedOpenGLPoint(
-                    start.X + Center.X,
+            list.Add(new ExtendedOpenGlPoint(
+                    start.X + center.X,
                     y,
-                    start.Y + Center.Y,
+                    start.Y + center.Y,
                     0,
-                    new float[3] {0,0,0}
-                )
-            );
+                    new float[] { 0, 0, 0 }));
         }
 
-        private static void G_Pocket(Model.Project project, Model.Operation iter) // X ~ width ; Y ~ length
+        private static void GPocket(Project project, Operation iter) // X ~ width ; Y ~ length
         {
-            List<ExtendedOpenGLPoint> list = new List<ExtendedOpenGLPoint>();
-//            GCodeGenerator.Add_Model(list);
+            var list = new List<ExtendedOpenGlPoint>();
             var enumerator = iter.Location.LocationsList.GetEnumerator();
-            double length = ((Model.Pocket)iter.Shape).length;
-            double height = ((Model.Pocket)iter.Shape).height;
-            double width = ((Model.Pocket)iter.Shape).width;
+            var length = ((Pocket)iter.Shape).Length;
+            var height = ((Pocket)iter.Shape).Height;
+            var width = ((Pocket)iter.Shape).Width;
             enumerator.MoveNext();
-            Point origin = new Point(
-                enumerator.Current.X - width / 2, 
-                enumerator.Current.Y - length / 2
-                );       // для обычного покета, не матрично/радиально расположенных
-            double stepY = 1;
-            double tooldiam = project.Settings.ToolDiam;
+            var origin = new Point(
+                enumerator.Current.X - width / 2,
+                enumerator.Current.Y - length / 2);       // для обычного покета, не матрично/радиально расположенных
+            var x = origin.X;
+            var y = origin.Y;
+            
+            const double stepY = 1;
+            var toolDiam = project.Settings.ToolDiam;
+            var toolRadius = toolDiam / 2;
 
-            GCodeGenerator.G_Set_FeedRate(180);      // Стандартная скорость подачи пока нет такого поля в проекте
-            GCodeGenerator.G00_X(origin.X + tooldiam / 2);
-            GCodeGenerator.G00_Y(origin.Y + tooldiam / 2);
-            GCodeGenerator.G01_Z(project.Settings.Height);
+            GSetFeedRate(180);      // Стандартная скорость подачи пока нет такого поля в проекте
+            G00X(x + toolRadius);
+            G00Y(y + toolRadius);
+            G01Z(project.Settings.Height);
 
             double temp = 0;
 
-            list.Add(
-                new ExtendedOpenGLPoint(
-                    origin.X + (tooldiam / 2), 
-                    project.Settings.Height + project.Settings.SafeDistance, 
-                    origin.Y + (tooldiam / 2),
+            list.Add(new ExtendedOpenGlPoint(
+                    x + toolRadius,
+                    project.Settings.Height + project.Settings.SafeDistance,
+                    y + toolRadius,
                     0,
-                    new float[3] {0,0,0}
-                    )
-            );
-            list.Add(
-                new ExtendedOpenGLPoint(
-                        origin.X + (tooldiam / 2),
+                    new float[] { 0, 0, 0 }));
+            list.Add(new ExtendedOpenGlPoint(
+                        x + toolRadius,
                         project.Settings.Height,
-                        origin.Y + (tooldiam / 2),
+                        y + toolRadius,
                         0,
-                        new float[3] {0,0,0}
-                        )
-            );
-            for (double i = project.Settings.Height; i >= project.Settings.Height - height; i -= stepY)         // дописать именно генерацию кодов...
+                        new float[] { 0, 0, 0 }));
+            for (var i = project.Settings.Height; i >= project.Settings.Height - height; i -= stepY)         // дописать именно генерацию кодов...
             {
-                GCodeGenerator.G01_Z(i);
-                for (double j = 1; j <= width / tooldiam; j++)
+                G01Z(i);
+                for (double j = 1; j <= width / toolDiam; j++)
                 {
-                    list.Add(
-                        new ExtendedOpenGLPoint(
-                            origin.X + (tooldiam / 2) + temp,
-                            i, //i
-                            origin.Y + (tooldiam / 2) + ((j * length) % (length * 2)) - tooldiam * (j % 2),
+                    list.Add(new ExtendedOpenGlPoint(
+                            x + toolRadius + temp,
+                            i,
+                            y + toolRadius + ((j * length) % (length * 2)) - toolDiam * (j % 2),
                             0,
-                            new float[3] {0,0,0}
-                        )
-                    );
-                    GCodeGenerator.G01_XY(origin.X + (tooldiam / 2) + temp, origin.Y + (tooldiam / 2) + ((j * length) % (length * 2)) - tooldiam * (j % 2));
-                    if (tooldiam / 2 + temp + tooldiam < width)
+                            new float[] { 0, 0, 0 }));
+                    G01Xy(x + toolRadius + temp, y + toolRadius + ((j * length) % (length * 2)) - toolDiam * (j % 2));
+                    if (toolRadius + temp + toolDiam < width)
                     {
-                        temp += tooldiam;
-                        list.Add(
-                            new ExtendedOpenGLPoint(
-                                origin.X + (tooldiam / 2) + temp, 
-                                i, //i
-                                origin.Y + (tooldiam / 2) + ((j * length) % (length * 2)) - tooldiam * (j % 2),
+                        temp += toolDiam;
+                        list.Add(new ExtendedOpenGlPoint(
+                                x + toolRadius + temp,
+                                i,
+                                y + toolRadius + ((j * length) % (length * 2)) - toolDiam * (j % 2),
                                 0,
-                                new float[3] {0,0,0}
-                            )
-                        );
-                        GCodeGenerator.G01_XY(origin.X + (tooldiam / 2) + temp, origin.Y + (tooldiam / 2) + ((j * length) % (length * 2)) - tooldiam * (j % 2));
+                                new float[] { 0, 0, 0 }));
+                        G01Xy(x + toolRadius + temp, y + toolRadius + ((j * length) % (length * 2)) - toolDiam * (j % 2));
                     }
                 }
                 temp = 0;
-                list.Add(new ExtendedOpenGLPoint(origin.X + (tooldiam / 2), i, origin.Y + (tooldiam / 2),0, new float[3] {0,0,0}));
-                GCodeGenerator.G01_XY(origin.X + (tooldiam / 2), origin.Y + (tooldiam / 2));
-                list.Add(new ExtendedOpenGLPoint(origin.X + width - tooldiam / 2,i,origin.Y + (tooldiam / 2),0, new float[3] {0,0,0}));                // Периметр
-                GCodeGenerator.G01_XY(origin.X + width - tooldiam / 2, origin.Y + (tooldiam / 2));
-                list.Add(new ExtendedOpenGLPoint(origin.X + width - tooldiam / 2,i,origin.Y + length - tooldiam / 2,0, new float[3] {0,0,0}));
-                GCodeGenerator.G01_XY(origin.X + width - tooldiam / 2, origin.Y + length - tooldiam / 2);
-                list.Add(new ExtendedOpenGLPoint(origin.X + (tooldiam / 2), i,origin.Y + length - tooldiam / 2,0, new float[3] {0,0,0}));
-                GCodeGenerator.G01_XY(origin.X + (tooldiam / 2), origin.Y + length - tooldiam / 2);
-                list.Add(new ExtendedOpenGLPoint(origin.X + (tooldiam / 2), i, origin.Y + (tooldiam / 2), 0, new float[3] { 0, 0, 0 }));
-                GCodeGenerator.G01_XY(origin.X + (tooldiam / 2), origin.Y + (tooldiam / 2));
+                list.Add(new ExtendedOpenGlPoint(x + toolRadius, i, y + toolRadius, 0, new float[] { 0, 0, 0 }));
+                G01Xy(x + toolRadius, y + toolRadius);
+                list.Add(new ExtendedOpenGlPoint(x + width - toolRadius, i, y + toolRadius, 0, new float[] { 0, 0, 0 }));                // Периметр
+                G01Xy(x + width - toolRadius, y + toolRadius);
+                list.Add(new ExtendedOpenGlPoint(x + width - toolRadius, i, y + length - toolRadius, 0, new float[] { 0, 0, 0 }));
+                G01Xy(x + width - toolRadius, y + length - toolRadius);
+                list.Add(new ExtendedOpenGlPoint(x + toolRadius, i, y + length - toolRadius, 0, new float[] { 0, 0, 0 }));
+                G01Xy(x + toolRadius, y + length - toolRadius);
+                list.Add(new ExtendedOpenGlPoint(x + toolRadius, i, y + toolRadius, 0, new float[] { 0, 0, 0 }));
+                G01Xy(x + toolRadius, y + toolRadius);
 
-                GCodeGenerator.separator();
+                Separator();
             }
-            list.Add(new ExtendedOpenGLPoint(origin.X + (tooldiam / 2), project.Settings.Height + project.Settings.SafeDistance, origin.Y + (tooldiam / 2), 0, new float[3] { 0, 0, 0 }));
-            trajectoryStor.AddModel(list);
-            GCodeGenerator.G01_Z(project.Settings.Height + 2);
-            GCodeGenerator.G00_Z(project.Settings.Height + project.Settings.SafeDistance);
-            GCodeGenerator.separator();
+            list.Add(new ExtendedOpenGlPoint(x + toolRadius, project.Settings.Height + project.Settings.SafeDistance, y + toolRadius, 0, new float[] { 0, 0, 0 }));
+            TrajectoryStor.AddModel(list);
+            G01Z(project.Settings.Height + 2);
+            G00Z(project.Settings.Height + project.Settings.SafeDistance);
+            Separator();
         }
 
-        public static void flush()
+        public static void Flush()
         {
-            gcode.Clear();
-            trajectoryStor.Clear();
-
+            Gcode.Clear();
+            TrajectoryStor.Clear();
         }
-        
+
     }
 }

@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Model.Storages
+﻿namespace Model.Storages
 {
-    public class ExtendedOpenGLPoint
+    public class ExtendedOpenGlPoint
     {
         private double x;
         private double y;
@@ -13,7 +8,7 @@ namespace Model.Storages
         private int type;   // dotted, line, ...
         private float[] color;
 
-        public ExtendedOpenGLPoint(double x, double y, double z, int type, float[] color)
+        public ExtendedOpenGlPoint(double x, double y, double z, int type, float[] color)
         {
             this.x = x;
             this.y = y;
@@ -22,8 +17,8 @@ namespace Model.Storages
             this.color = color;
         }
 
-        public double[] getCoordinates(){
-            return new double[3] {x, y, z};
+        public double[] GetCoordinates(){
+            return new[] {x, y, z};
         }
     }
 }

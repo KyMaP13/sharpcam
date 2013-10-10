@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using Model.Primitives;
+using Model.Tree;
 using SharpGL;
 using SharpGL.SceneGraph;
 using System.Collections.ObjectModel;
@@ -8,32 +11,29 @@ using Model;
 using System.IO;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using Model.Storages;
+using Viewer.Tree;
 
 namespace Viewer
 {
 
-    /// <summary>
-    /// Логика взаимодействия для MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow : Window
-    {
-        private Project testProject = Samples.DummyProject;
-        private ObservableCollection<Project> source = new ObservableCollection<Project>();
-        private uint counter = 0;
+    // <summary>
+    // Логика взаимодействия для MainWindow.xaml
+    // </summary>
 
-        private List<List<double[]>> detailCache = new List<List<double[]>>();
+    public partial class MainWindow
+    {
+        private readonly Project testProject = Samples.DummyProject;
+        private uint counter;
+        private readonly List<List<double[]>> detailCache = new List<List<double[]>>();
 
         public MainWindow()
         {
             InitializeComponent();
             var x = new ObservableCollection<Object>();
             
-            var y = new ContainerNode();
-            y.Items = this.testProject.Operations;
-            y.Name = "Operations";// (see MainWindow constructor)";
+            var y = new ContainerNode {Items = testProject.Operations, Name = "Operations"};
 
-            x.Add(this.testProject.Settings);
+            x.Add(testProject.Settings);
             x.Add(y);
             OperationsTree.ItemsSource = x;
         }
@@ -42,11 +42,10 @@ namespace Viewer
 
         float zoom; // а эта нужна для зума колёсиком мышки
 
-        private void OpenGLControl_OpenGLDraw(object sender, OpenGLEventArgs args)
+        private void OpenGlControlOpenGlDraw(object sender, OpenGLEventArgs args)
         {
             //  Get the OpenGL instance that's been passed to us.
             OpenGL gl = args.OpenGL;
-            List<List<double[]>> carcass = new List<List<double[]>>();
             gl.ClearColor(255, 255, 0.9f, 1.0f);
         
             //  Clear the color and depth buffers.
@@ -64,11 +63,11 @@ namespace Viewer
             //label2.Content = dr;
             gl.Translate((float)drag.X / dr, -(float)drag.Y / dr, zoom);//перемещение с зажатой левой кнопкой мыши
 
-            var Bill = this.testProject.Settings;
+            var bill = testProject.Settings;
 
-            gl.Translate(Bill.Length / 2, Bill.Height / 2, Bill.Width / 2);//высчитывается из размера заготовки
+            gl.Translate(bill.Length / 2, bill.Height / 2, bill.Width / 2);//высчитывается из размера заготовки
             gl.Rotate((float)rotation.Y, (float)rotation.X, 0); // вращение с зажатой средней кнопкой мыши
-            gl.Translate(-Bill.Length / 2, -Bill.Height / 2, -Bill.Width / 2);
+            gl.Translate(-bill.Length / 2, -bill.Height / 2, -bill.Width / 2);
             
             //этот блок с отрисовкой осей придётся всегда пересчитывать
             gl.Begin(OpenGL.GL_LINES);//рисуем все оси
@@ -110,75 +109,71 @@ namespace Viewer
             ///////////////////////////////////
 
             //var Bill = this.testProject.Settings;
-            Billet.Draw(gl, Bill.Height, Bill.Length, Bill.Width); // заготовка
+            Billet.Draw(gl, bill.Height, bill.Length, bill.Width); // заготовка
 
-            var operations = this.testProject.Operations;//колличество операций
+            var operations = testProject.Operations;//колличество операций
 
-            var oper = operations.GetEnumerator();
-
-            Regex BoltReg = new Regex("BoltHole");
-            Regex PocketReg = new Regex("Pocket");
+            var boltReg = new Regex("BoltHole");
+            var pocketReg = new Regex("Pocket");
             if (detailCache.Count != operations.Count) detailCache.Clear();
 
             for (int i = 0; i < operations.Count; i++)//главный цикл отрисовки
             {
                 //label1.Content = operations.Count;
                 label2.Content = i;
-                string ShapeName = operations[i].Shape.Name.ToString();
+                var shapeName = operations[i].Shape.Name;
 
                 
-                if (BoltReg.IsMatch(ShapeName))
+                if (boltReg.IsMatch(shapeName))
                 {
-                    var Bolt = (Model.BoltHole)operations[i].Shape;
+                    var bolt = (Model.Primitives.BoltHole)operations[i].Shape;
                     var boltlocation = operations[i].Location.LocationsList.GetEnumerator();
                     while (boltlocation.MoveNext())
                     {
-                        if (Bolt.modified || boltlocation.Current.modified || detailCache.Count<=i)
+                        if (bolt.Modified || boltlocation.Current.Modified || detailCache.Count<=i)
                         {
 
                             try
                             {
                                 detailCache.RemoveAt(i);
                             }
-                            catch { }
-                            Point location = new Point(boltlocation.Current.X, boltlocation.Current.Y);
-                            detailCache.Insert(i, BoltHole.ReCalc(Bolt, 0.5, location)); //здесь уже всё ок, кроме величины шага
-                            boltlocation.Current.isDrawn();
-                            Bolt.isDrawn();//значит в кэше лежит актуальная информация
+                            catch{}
+                            var location = new Point(boltlocation.Current.X, boltlocation.Current.Y);
+                            detailCache.Insert(i, BoltHole.ReCalc(bolt, 0.5, location)); //здесь уже всё ок, кроме величины шага
+                            boltlocation.Current.IsDrawn();
+                            bolt.IsDrawn();//значит в кэше лежит актуальная информация
                         }
                         else
                         {
-                            Point location = new Point(boltlocation.Current.X, boltlocation.Current.Y);
-                            BoltHole.Draw(gl, location, detailCache[i]); //здесь уже всё ок, кроме величины шага
+                            var location = new Point(boltlocation.Current.X, boltlocation.Current.Y);
+                            BoltHole.Draw(gl, detailCache[i]); //здесь уже всё ок, кроме величины шага
                         }
                     }
                 }
 
-                if (PocketReg.IsMatch(ShapeName))
+                if (!pocketReg.IsMatch(shapeName)) continue;
+                var poc = (Model.Primitives.Pocket)operations[i].Shape;
+                var poclocation = operations[i].Location.LocationsList.GetEnumerator();
+                while (poclocation.MoveNext())
                 {
-                    var Poc = (Model.Pocket)operations[i].Shape;
-                    var poclocation = operations[i].Location.LocationsList.GetEnumerator();
-                    while (poclocation.MoveNext())
+                    if (poc.Modified || poclocation.Current.Modified || detailCache.Count <= i)
                     {
-                        if (Poc.modified || poclocation.Current.modified || detailCache.Count <= i)
+                        try
                         {
-                            try
-                            {
-                                detailCache.RemoveAt(i);
-                            }
-                            catch { }
-                            Point location = new Point(poclocation.Current.X, poclocation.Current.Y);
-                            List<double[]> p = Pocket.ReCalc(Poc, 0.5, location);
-                            label1.Content = p.Count;
-                            detailCache.Insert(i, p); //здесь уже всё ок, кроме величины шага
-                            poclocation.Current.isDrawn();
-                            Poc.isDrawn();//значит в кэше лежит актуальная информация
+                            detailCache.RemoveAt(i);
                         }
-                        else
-                        {
-                            Point location = new Point(poclocation.Current.X, poclocation.Current.Y);
-                            Pocket.Draw(gl, location, detailCache[i]); //здесь уже всё ок, кроме величины шага
-                        }
+                        catch { }
+                        var location = new Point(poclocation.Current.X, poclocation.Current.Y);
+                        var p = Pocket.ReCalc(poc, 0.5, location);
+                        label1.Content = p.Count;
+                        detailCache.Insert(i, p); //здесь уже всё ок, кроме величины шага
+                        poclocation.Current.IsDrawn();
+                        poc.IsDrawn();//значит в кэше лежит актуальная информация
+                    }
+                    else
+                    {
+                        var location = new Point(poclocation.Current.X, poclocation.Current.Y);
+                        Pocket.Draw(gl, detailCache[i]); //здесь уже всё ок, кроме величины шага
                     }
                 }
             }
@@ -189,12 +184,10 @@ namespace Viewer
             gl.Begin(OpenGL.GL_LINE_STRIP);
             gl.Color(1f, 0, 0);
 
-            foreach (var operation in GCodeGenerator.trajectoryStor.GetTrajectorys())
+            var trajectorys = GCodeGenerator.TrajectoryStor.GetTrajectorys();
+            foreach (var point in trajectorys.SelectMany(operation => operation))
             {
-                foreach (var point in operation)
-                {
-                    gl.Vertex(point.getCoordinates());
-                }
+                gl.Vertex(point.GetCoordinates());
             }
 
             gl.End();            
@@ -202,29 +195,24 @@ namespace Viewer
             gl.Flush();
         }
 
-        private void OpenGLControl_OpenGLInitialized(object sender, OpenGLEventArgs args)
+        private void OpenGlControlOpenGlInitialized(object sender, OpenGLEventArgs args)
         {
             //  Enable the OpenGL depth testing functionality.
             args.OpenGL.Enable(OpenGL.GL_DEPTH_TEST);
         }
 
-        private void OpenGLControl_Resized(object sender, OpenGLEventArgs args)
+        private void OpenGlControlResized(object sender, OpenGLEventArgs args)
         {
-            // Get the OpenGL instance.
-            OpenGL gl = args.OpenGL;
-
-            // Load and clear the projection matrix.
+            var gl = args.OpenGL;
             gl.MatrixMode(OpenGL.GL_PROJECTION);
             gl.LoadIdentity();
             zoom = -gl.RenderContextProvider.Width / gl.RenderContextProvider.Height * 150; //изменение размера самой картинки при изменении размера окна
-            // Perform a perspective transformation
-            gl.Perspective(45.0f, (float)gl.RenderContextProvider.Width / (float)gl.RenderContextProvider.Height, 0.1f, 2000.0f);
-            // Load the modelview.
+            gl.Perspective(45.0f, gl.RenderContextProvider.Width / (float)gl.RenderContextProvider.Height, 0.1f, 2000.0f);
             gl.MatrixMode(OpenGL.GL_MODELVIEW);
         }
 
         //блок навигации
-        private void OpenGLControl_MouseWheel(object sender, MouseWheelEventArgs e) // действие по колёсику мыши
+        private void OpenGlControlMouseWheel(object sender, MouseWheelEventArgs e) // действие по колёсику мыши
         {
             if (e.Delta > 0)
             {
@@ -241,20 +229,20 @@ namespace Viewer
         Vector twist = new Vector(0, 0);
         Vector drag = new Vector(0, 0);
         Vector offset = new Vector(0, 0);
-        bool dragging = false;
-        bool rotated = false;
+        bool dragging;
+        bool rotated;
         private IInputElement OpenGLControl = null;
-        private void OpenGLControl_MouseMove(object sender, MouseEventArgs e)
+        private void OpenGlControlMouseMove(object sender, MouseEventArgs e)
         {
             if (e.MiddleButton == MouseButtonState.Pressed)
             {
-                Point stop = e.GetPosition(OpenGLControl);
+                var stop = e.GetPosition(OpenGLControl);
                 rotation = stop - start + twist;
                 rotated = false;
             }
             else if (e.LeftButton == MouseButtonState.Pressed)
             {
-                Point stop = e.GetPosition(OpenGLControl);
+                var stop = e.GetPosition(OpenGLControl);
                 drag = stop - start + offset;
                 dragging = false;
             } else {
@@ -275,15 +263,15 @@ namespace Viewer
         }
         #endregion        //конец блока навигации
 
-        private void button1_Click(object sender, RoutedEventArgs e)
+        private void Button1Click(object sender, RoutedEventArgs e)
         {   
             var op = new Operation {
-                        Shape = new Model.BoltHole {
-                            Name = "BoltHole" + this.counter.ToString(),
+                        Shape = new Model.Primitives.BoltHole {
+                            Name = "BoltHole" + counter,
                             Radius = 3,
-                            radius = 2,
+                            InternalRadius = 2,
                             Length = 4,
-                            lenAll = 7,
+                            LenAll = 7,
                             Y = 10,
                         },
                         Location = new CustomLocations {
@@ -296,80 +284,73 @@ namespace Viewer
                             }
                         }
                     };
-            this.counter++;
-            this.testProject.Operations.Add(op);
+            counter++;
+            testProject.Operations.Add(op);
 
-            GCodeGenerator.flush();
+            GCodeGenerator.Flush();
         }
 
         private void AddClick(object sender, RoutedEventArgs e)
         {
-            SmartItem item = ((System.Windows.Controls.Button)sender).DataContext as SmartItem;
+            var item = ((System.Windows.Controls.Button)sender).DataContext as SmartItem;
             if (item != null)
             {
                 item.AddEvent();
             }
-            for (int i = 0; i < testProject.Operations.Count; i++)
+
+            foreach (var t in testProject.Operations)
             {
-                int j = 0;
-                foreach (var x in testProject.Operations[i].Location.LocationsList)
-                {
-                    j++;
-                }
-                label1.Content += " | " + j.ToString();
+                var j = t.Location.LocationsList.Count();
+                label1.Content += " | " + j;
             }
-            GCodeGenerator.flush();
+            GCodeGenerator.Flush();
         }
         private void DeleteClick(object sender, RoutedEventArgs e)
         {
-            SmartItem item = ((System.Windows.Controls.Button)sender).DataContext as SmartItem;
+            var item = ((System.Windows.Controls.Button)sender).DataContext as SmartItem;
             if (item != null)
             {
                 item.DeleteEvent();
             }
-            for (int i = 0; i < testProject.Operations.Count; i++)
+            foreach (var operation in testProject.Operations)
             {
-                int j = 0;
-                foreach (var x in testProject.Operations[i].Location.LocationsList)
-                {
-                    j++;
-                }
-                label1.Content += " ; " + j.ToString();
+                var j = operation.Location.LocationsList.Count();
+                label1.Content += " ; " + j;
             }
 
-            GCodeGenerator.flush();
+            GCodeGenerator.Flush();
         }
         private void UpClick(object sender, RoutedEventArgs e)
         {
-            SmartItem item = ((System.Windows.Controls.Button)sender).DataContext as SmartItem;
+            var item = ((System.Windows.Controls.Button)sender).DataContext as SmartItem;
             if (item != null)
             {
                 detailCache.Clear();
                 item.MoveUpEvent();
             }
-            GCodeGenerator.flush();
+            GCodeGenerator.Flush();
         }
         private void DownClick(object sender, RoutedEventArgs e)
         {
-            SmartItem item = ((System.Windows.Controls.Button)sender).DataContext as SmartItem;
+            var item = ((System.Windows.Controls.Button)sender).DataContext as SmartItem;
             if (item != null)
             {
                 detailCache.Clear();
                 item.MoveDownEvent();
             }
-            GCodeGenerator.flush();
+            GCodeGenerator.Flush();
         }
 
-        private void button3_Click(object sender, RoutedEventArgs e)
+        private void Button3Click(object sender, RoutedEventArgs e)
         {
             var op = new Operation
             {
-                Shape = new Model.Pocket
+                Shape = new Model.Primitives.Pocket
                 {
-                    Name = "Pocket" + this.counter.ToString(),
-                    height = 5,
-                    width = 6,
-                    length = 8,
+                    Name = "Pocket" + counter,
+                    Height = 5,
+                    Width = 6,
+                    Length = 8,
                     Y = 10
                 },
                 Location = new CustomLocations
@@ -384,57 +365,51 @@ namespace Viewer
                             }
                 }
             };
-            this.counter++;
-            this.testProject.Operations.Add(op);
-            GCodeGenerator.flush();
+            counter++;
+            testProject.Operations.Add(op);
+            GCodeGenerator.Flush();
         }
 
-        private void _gcodeExport(object sender, RoutedEventArgs e)
+        private void GcodeExport(object sender, RoutedEventArgs e)
         {
-            Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
-            dlg.FileName = "Progect";
-            dlg.DefaultExt = ".nc";
-            dlg.Filter = "G-code file (.nc)|*.nc";
+            var dlg = new Microsoft.Win32.SaveFileDialog
+                      {
+                          FileName = "Progect",
+                          DefaultExt = ".nc",
+                          Filter = "G-code file (.nc)|*.nc"
+                      };
 
-            Nullable<bool> result = dlg.ShowDialog();
-            GCodeGenerator.generate(this.testProject);
+            var result = dlg.ShowDialog();
+            GCodeGenerator.Generate(testProject);
 
-            if (result == true)
+            if (result != true) return;
+            try
             {
-                try
+                var file = new StreamWriter(dlg.FileName);
+                foreach (var line in GCodeGenerator.Gcode)
                 {
-                    StreamWriter file = new StreamWriter(dlg.FileName);
-                    foreach (String line in GCodeGenerator.gcode)
-                    {
-                        file.WriteLine(line);
-                    }
-                    file.Close();
+                    file.WriteLine(line);
                 }
-                catch (Exception)
-                {
-                    MessageBox.Show("Good Bye Cruel World...");
-                }
+                file.Close();
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Good Bye Cruel World...");
             }
         }
 
-        private void _gcodeTrajectory(object sender, RoutedEventArgs e)
+        private void GcodeTrajectory(object sender, RoutedEventArgs e)
         {
-            GCodeGenerator.generate(this.testProject);
+            GCodeGenerator.Generate(testProject);
         }
 
-        private void button4_Click(object sender, RoutedEventArgs e)
-        {
-            //this.testProject.Operations[0].Location.FrameList;
-            
-        }
-
-        private void button2_Click(object sender, RoutedEventArgs e)
+        private void Button2Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                var b = (Model.Operation)OperationsTree.SelectedItem;
-                int remIndex = this.testProject.Operations.IndexOf(b);
-                this.testProject.Operations.RemoveAt(remIndex);
+                var b = (Operation)OperationsTree.SelectedItem;
+                var remIndex = testProject.Operations.IndexOf(b);
+                testProject.Operations.RemoveAt(remIndex);
                 detailCache.RemoveAt(remIndex);
             }
             catch { }

@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections;
-using System.Linq;
-using System.Text;
+using Model.Tree;
 
-namespace Viewer
+namespace Viewer.Tree
 {
-    public class ContainerNode : Model.NotifierObject
+    public class ContainerNode : NotifierObject
     {
         private String name;
         public string Name
@@ -37,7 +36,7 @@ namespace Viewer
 
         public override string ToString()
         {
-            return "Container: " + name + " / " + items.ToString();
+            return "Container: " + name + " / " + items;
         }
     }
 }

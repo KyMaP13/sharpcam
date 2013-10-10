@@ -1,25 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Model
+﻿namespace Model.Tree
 {
 
 
     public class Operation : SmartItem
     {
-        private Shape _shape;
-        private ILocationSource _location;
+        private Shape shape;
+        private ILocationSource location;
 
         public Shape Shape {
             get
             {
-                return _shape;
+                return shape;
             }
             set
             {
-                 _shape = value;
+                 shape = value;
                 OnPropertyChanged("Shape");
             }
         }
@@ -27,11 +22,11 @@ namespace Model
         public ILocationSource Location {
             get
             {
-                return _location;
+                return location;
             }
             set
             {
-                 _location = value;
+                 location = value;
                 OnPropertyChanged("Location");
             }
         }

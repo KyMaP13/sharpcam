@@ -1,44 +1,41 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Model.Tree;
 
-namespace Model
+namespace Model.Primitives
 {
     public class BoltHole : Shape
     {
-        private double _Radius;
-        private double _length;
-        private double _lenAll;
-        private double _Y;
-        private double _radius;
+        private double externalRadius;
+        private double length;
+        private double lenAll;
+        private double y;
+        private double internalRadius;
 
         public BoltHole()
         {
-            this.Name = "Bolt Hole";
+            Name = "Bolt Hole";
         }
         public double Radius
         {
             get
             {
-                return _Radius;
+                return externalRadius;
             }
             set
             {
-                _Radius = value;
+                externalRadius = value;
                 //this.modified = true;
                 OnPropertyChanged("Radius");
             }
         }
-        public double lenAll
+        public double LenAll
         {
             get
             {
-                return _lenAll;
+                return lenAll;
             }
             set
             {
-                _lenAll = value;
+                lenAll = value;
                 //this.modified = true;
                 OnPropertyChanged("LengthAll");
             }
@@ -47,11 +44,11 @@ namespace Model
         {
             get
             {
-                return _Y;
+                return y;
             }
             set
             {
-                _Y = value;
+                y = value;
                // this.modified = true;
                 OnPropertyChanged("Y");
             }
@@ -60,26 +57,26 @@ namespace Model
         {
             get
             {
-                return _length;
+                return length;
             }
             set
             {
-                _length = value;
+                length = value;
                 //this.modified = true;
                 OnPropertyChanged("Length");
             }
         }
-        public double radius
+        public double InternalRadius
         {
             get
             {
-                return _radius;
+                return internalRadius;
             }
             set
             {
-                _radius = value;
+                internalRadius = value;
                 //this.modified = true;
-                OnPropertyChanged("radius");
+                OnPropertyChanged("InternalRadius");
             }
         }
         

@@ -1,33 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
+﻿using System.Collections.Generic;
 
 namespace Model.Storages
 {
     public class TrajectoryStorage
     {
-        protected List<List<ExtendedOpenGLPoint>> list = new List<List<ExtendedOpenGLPoint>>();
+        private List<List<ExtendedOpenGlPoint>> list;
         
         public TrajectoryStorage()
         {
-            var list = new List<ExtendedOpenGLPoint>();
+            list = new List<List<ExtendedOpenGlPoint>>();
         }
 
-        public List<List<ExtendedOpenGLPoint>> GetTrajectorys()
+        public List<List<ExtendedOpenGlPoint>> GetTrajectorys()
         {
               return list;
         }
-/*
-        public void AddPoint(List<ExtendedOpenGLPoint> list)    
+
+        public void AddModel(List<ExtendedOpenGlPoint> operationStorage)    // модель это List<ExtendedOpenGLPoint> лучше добавлть моделями а не точками
         {
-            list.Add(list);
-        }
-*/
-        public void AddModel(List<ExtendedOpenGLPoint> list)    // модель это List<ExtendedOpenGLPoint> лучше добавлть моделями а не точками
-        {
-            (this.GetTrajectorys()).Add(list);
+            (GetTrajectorys()).Add(operationStorage);
         }
 
         public void Clear(){

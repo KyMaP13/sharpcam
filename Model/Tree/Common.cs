@@ -1,68 +1,64 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
 
-namespace Model
+namespace Model.Tree
 {
-    /// <summary>
-    /// Class implementing events for deleting
-    /// and moving items. Items shuld be derived from <see cref="SmartItem" />.
-    /// </summary>
-    public class SmartList<T>: ObservableCollection<T>
-        where T: SmartItem, new()
+    // <summary>
+    // Class implementing events for deleting
+    // and moving items. Items shuld be derived from <see cref="SmartItem" />.
+    // </summary>
+
+    public class SmartList<T>: ObservableCollection<T> where T: SmartItem, new()
     {
-        protected void addItem(object sender, EventArgs e)
+        private void AddItem(object sender, EventArgs e)
         {
-            T item = (T)sender;
-            int index = base.IndexOf(item);
-            this.InsertItem(index, new T());
+            var item = (T)sender;
+            var index = IndexOf(item);
+            InsertItem(index, new T());
         }
-        protected void deleteItem(object sender, EventArgs e)
+
+        private void DeleteItem(object sender, EventArgs e)
         {
-            T item = (T)sender;
-            base.Remove(item);
+            var item = (T)sender;
+            Remove(item);
             
         }
-        protected void moveItemUp(object sender, EventArgs e)
+
+        private void MoveItemUp(object sender, EventArgs e)
         {
-            T item = (T)sender;
-            int index = base.IndexOf(item);
-            if (index > 0)
-            {
-                base.RemoveAt(index);
-                index--;
-                base.InsertItem(index, item);
-            }
+            var item = (T)sender;
+            var index = IndexOf(item);
+            if (index <= 0) return;
+            RemoveAt(index);
+            index--;
+            base.InsertItem(index, item);
         }
 
-        protected void moveItemDown(object sender, EventArgs e)
+        private void MoveItemDown(object sender, EventArgs e)
         {
-            T item = (T)sender;
-            int index = base.IndexOf(item);
-            if (index < base.Count-1)
-            {
-                base.RemoveAt(index);
-                index++;
-                base.InsertItem(index, item);
-            }
+            var item = (T)sender;
+            var index = IndexOf(item);
+            if (index >= Count - 1) return;
+            RemoveAt(index);
+            index++;
+            base.InsertItem(index, item);
         }
 
         public new void Add(T item)
         {
             base.Add(item);
-            item.AddHandler += this.addItem;
-            item.DeleteHandler += this.deleteItem;
-            item.MoveUpHandler += this.moveItemUp;
-            item.MoveDownHandler += this.moveItemDown;
+            item.AddHandler += AddItem;
+            item.DeleteHandler += DeleteItem;
+            item.MoveUpHandler += MoveItemUp;
+            item.MoveDownHandler += MoveItemDown;
         }
     }
 
-    /// <summary>
-    /// Items for <see cref="SmartList" />.
-    /// Implements delete and move events.
-    /// </summary>
+    // <summary>
+    // Items for <see cref="SmartList" />.
+    // Implements delete and move events.
+    // </summary>
+
     public class SmartItem : NotifierObject
     {
         public event EventHandler AddHandler;

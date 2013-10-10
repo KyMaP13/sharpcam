@@ -1,112 +1,113 @@
 ﻿using System;
 using System.Windows;
 using SharpGL;
-using System.Collections.ObjectModel;
-using System.IO;
 using System.Collections.Generic;
 
 namespace Viewer
 {
-
-    class BoltHole
+    static class BoltHole
     {
-        public static void Draw(OpenGL gl, Point Center, List<double[]> Bolt)
+        public static void Draw(OpenGL gl, IEnumerable<double[]> bolt)
         {
             gl.Begin(OpenGL.GL_LINE_STRIP);
             gl.Color(0, 1, 0);
-            foreach (var point in Bolt)
+            foreach (var point in bolt)
             {
                 gl.Vertex(point);
             }
             gl.End();
         }
 
-        public static List<double[]> ReCalc(Model.BoltHole Bolt, double stepY, Point Center)
+        public static List<double[]> ReCalc(Model.Primitives.BoltHole boltHole, double stepY, Point center)
         {
-            List<double[]> bolt = new List<double[]>();
+            if (boltHole == null) throw new ArgumentNullException("boltHole");
+            var boltCarcass = new List<double[]>();
 
-            double stepR = (Bolt.Radius - Bolt.radius) / ((Bolt.lenAll - Bolt.Length) / stepY); // рассчитываем шаг для радиуса
-            double stR = Bolt.Radius;
+            var stepR = (boltHole.Radius - boltHole.InternalRadius) / ((boltHole.LenAll - boltHole.Length) / stepY); // рассчитываем шаг для радиуса
+            var stR = boltHole.Radius;
 
-            for (double i = Bolt.Y; i > Bolt.Y - (Bolt.lenAll - Bolt.Length); i -= stepY)
+            for (var i = boltHole.Y; i > boltHole.Y - (boltHole.LenAll - boltHole.Length); i -= stepY)
             {
-                Circle( stR, i, Center, bolt);
+                Circle( stR, i, center, boltCarcass);
                 stR -= stepR;
             }
 
-            for (double i = Bolt.Y - (Bolt.lenAll - Bolt.Length); i > Bolt.Y - Bolt.lenAll; i -= stepY)
+            for (var i = boltHole.Y - (boltHole.LenAll - boltHole.Length); i > boltHole.Y - boltHole.LenAll; i -= stepY)
             {
-                Circle( Bolt.radius, i, Center, bolt);
+                Circle( boltHole.InternalRadius, i, center, boltCarcass);
             }
-            Circle( Bolt.radius, Bolt.Y - Bolt.lenAll, Center, bolt);
+            Circle( boltHole.InternalRadius, boltHole.Y - boltHole.LenAll, center, boltCarcass);
 
-            return bolt;
+            return boltCarcass;
         }
 
 
 
-        private static void Circle( double r, double y, Point Center, List<double[]> bolt)
+        private static void Circle( double r, double y, Point center, ICollection<double[]> bolt)
         {
-            int n = (int)Math.Round(r) * 20;
-            Point start = new Point();
-            for (int i = 0; i < n; i++)
+            var n = (int)Math.Round(r) * 20;
+            var start = new Point();
+            for (var i = 0; i < n; i++)
             {
-                double angle = 2 * Math.PI * i / n;
+                var angle = 2 * Math.PI * i / n;
                 if (i == 0)
                 {
                     start.X = Math.Round(r * Math.Sin(angle), 5);
                     start.Y = Math.Round(r * Math.Cos(angle), 5);
                 }
-                bolt.Add(Features.Adder((r * Math.Sin(angle) + Center.X), y, (r * Math.Cos(angle) + Center.Y)));
+                bolt.Add(Features.Adder((r * Math.Sin(angle) + center.X), y, (r * Math.Cos(angle) + center.Y)));
             }
-            bolt.Add(Features.Adder((start.X + Center.X), y, (start.Y + Center.Y)));
+            bolt.Add(Features.Adder((start.X + center.X), y, (start.Y + center.Y)));
         }
     }
 
-    class Pocket
+    static class Pocket
     {
 
-        public static void Draw(OpenGL gl, Point Center, List<double[]> Poc)
+        public static void Draw(OpenGL gl, List<double[]> poc)
         {
-            int i = 0;
-            while (i<Poc.Count)
+            if (poc == null) throw new ArgumentNullException("poc");
+            var i = 0;
+            while (i<poc.Count)
             {
                 gl.Begin(OpenGL.GL_LINE_LOOP);
                 gl.Color(0, 0, 0);
-                for (int j = i; j < i + 4; j++)
+                for (var j = i; j < i + 4; j++)
                 {
-                    gl.Vertex(Poc[j]);
+                    gl.Vertex(poc[j]);
                 }
                 gl.End();
                 i += 4;
             }
         }
 
-        public static List<double[]> ReCalc(Model.Pocket Poc, double stepY, Point Center)
+        public static List<double[]> ReCalc(Model.Primitives.Pocket poc, double stepY, Point center)
         {
-            List<double[]> pocket = new List<double[]>();
+            var pocket = new List<double[]>();
 
-            double stY = Poc.Y;
-            for (double i = 0; i < Poc.height ; i += stepY)
+            var stY = poc.Y;
+            for (double i = 0; i < poc.Height ; i += stepY)
             {
-                Rectangle(pocket, Poc.length, Poc.width, stY, Center);
+                Rectangle(pocket, poc.Length, poc.Width, stY, center);
                 stY -= stepY;
             }
-            Rectangle(pocket, Poc.length, Poc.width, Poc.height, Center);
+            Rectangle(pocket, poc.Length, poc.Width, poc.Height, center);
             
             return pocket;
         }
 
-        private static void Rectangle(List<double[]> pocket,double len, double wid, double y, Point Center)
+        private static void Rectangle(ICollection<double[]> pocket,double len, double wid, double y, Point center)
         {
-            pocket.Add(Features.Adder((-wid / 2) + Center.X, y, (-len / 2) + Center.Y));
-            pocket.Add(Features.Adder((-wid / 2) + Center.X, y, (len / 2) + Center.Y));
-            pocket.Add(Features.Adder((wid / 2) + Center.X, y, (len / 2) + Center.Y));
-            pocket.Add(Features.Adder((wid / 2) + Center.X, y, (-len / 2) + Center.Y));
+            var halfRecWidth = wid / 2;
+            var halfRecLength = len / 2;
+            pocket.Add(Features.Adder(-halfRecWidth + center.X, y, -halfRecLength + center.Y));
+            pocket.Add(Features.Adder(-halfRecWidth + center.X, y, halfRecLength + center.Y));
+            pocket.Add(Features.Adder(halfRecWidth + center.X, y, halfRecLength + center.Y));
+            pocket.Add(Features.Adder(halfRecWidth + center.X, y, -halfRecLength + center.Y));
         }
     }
 
-    class Billet
+    static class Billet
     {
         public static void Draw(OpenGL gl, double height, double length, double width)
         {
@@ -141,7 +142,8 @@ namespace Viewer
             gl.End();
         }
     }
-    class Features
+
+    static class Features
     {
         public static double[] Adder(double x, double y, double z)
         {

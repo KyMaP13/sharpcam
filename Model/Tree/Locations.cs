@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
+using Model.Primitives;
 
-namespace Model
+namespace Model.Tree
 {
     
     public interface ILocationSource
     {
-        ObservableCollection<Frame> LocationsList { get; }
+        IEnumerable<Frame> LocationsList { get; }
     }
     
     public class FrameList : SmartList<Frame>
@@ -23,90 +21,72 @@ namespace Model
         {
             return "Frames:";
         }
-
-        private new void deleteItem(object sender, EventArgs e)
-        {
-            if (this.Count > 1)
-            {
-                base.deleteItem(sender, e);
-            }
-        }
     }
     public class CustomLocations : NotifierObject, ILocationSource
     {
-        private FrameList _locations;
+        private FrameList locations;
         public FrameList Locations {
-            get
-            {
-                return _locations;
-            }
             set
             {
-                _locations = value;
+                locations = value;
                 OnPropertyChanged("Locations");
                 OnPropertyChanged("LocationsList");
             }
         }
         
-        ObservableCollection<Frame> ILocationSource.LocationsList
-        {
-            get {
-                return this._locations;
-            }
-        }
-        
+        IEnumerable<Frame> ILocationSource.LocationsList{get {return locations;}}    
     }
 
-    public class MatrixLocations : NotifierObject, ILocationSource
+    public abstract class MatrixLocations : NotifierObject, ILocationSource
     {
 
-        private double _xPadding;
-        private double _yPadding;
-        private int _rowCount;
-        private int _columnCount;
+        private double xPadding;
+        private double yPadding;
+        private int rowCount;
+        private int columnCount;
 
         public double XPadding
         {
             get
             {
-                return _xPadding;
+                return xPadding;
             }
             set
             {
-                 _xPadding = value;
+                 xPadding = value;
                 OnPropertyChanged("XPadding");
             }
         }
         public double YPadding {get
             {
-                return _yPadding;
+                return yPadding;
             }
             set
             {
-                 _yPadding = value;
+                 yPadding = value;
                 OnPropertyChanged("YPadding");
             }}
         public int RowCount {get
             {
-                return _rowCount;
+                return rowCount;
             }
             set
             {
-                 _rowCount = value;
+                 rowCount = value;
                 OnPropertyChanged("RowCount");
             }}
         public int ColumnCount {get
             {
-                return _columnCount;
+                return columnCount;
             }
             set
             {
-                 _columnCount = value;
+                 columnCount = value;
                 OnPropertyChanged("ColumnCount");
             }}
         
 
-        public ObservableCollection<Frame> LocationsList
+        public IEnumerable<Frame> LocationsList
         {
             get { throw new NotImplementedException(); }
         }

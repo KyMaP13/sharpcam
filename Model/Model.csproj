@@ -51,6 +51,7 @@
     <Compile Include="Tree\Operation.cs" />
     <Compile Include="Primitives\Pocket.cs" />
     <Compile Include="Primitives\Point.cs" />
+    <Compile Include="Tree\PointList.cs" />
     <Compile Include="Tree\Profile.cs" />
     <Compile Include="Tree\Project.cs" />
     <Compile Include="Tree\Shape.cs" />

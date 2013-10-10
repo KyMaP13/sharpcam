@@ -1,34 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Model.Tree;
 
-namespace Model
+namespace Model.Primitives
 {
-    public class GcamPoint : NotifierObject
+    public abstract class GcamPoint : NotifierObject
     {
-        private double _x;
-        private double _y;
+        private double x;
+        private double y;
 
         public double X {
             get
             {
-                return _x;
+                return x;
             }
             set
             {
-                _x = value;
+                x = value;
                 OnPropertyChanged("X");
             }
         }
         public double Y {
             get
             {
-                return _y;
+                return y;
             }
             set
             {
-                _y = value;
+                y = value;
                 OnPropertyChanged("Y");
             }
         }
@@ -36,24 +33,24 @@ namespace Model
 
     public class Frame : SmartItem
     {
-        private double _x;
-        private double _y;
-        private double _angle;
+        private double x;
+        private double y;
+        private double angle;
 
         public Frame (){
-            this.X = 0;
-            this.Y = 0;
-            this.Angle = 0;
+            X = 0;
+            Y = 0;
+            Angle = 0;
         }
         public double X
         {
             get
             {
-                return _x;
+                return x;
             }
             set
             {
-                _x = value;
+                x = value;
                 OnPropertyChanged("X");
             }
         }
@@ -61,11 +58,11 @@ namespace Model
         {
             get
             {
-                return _y;
+                return y;
             }
             set
             {
-                _y = value;
+                y = value;
                 OnPropertyChanged("Y");
             }
         }
@@ -73,11 +70,11 @@ namespace Model
         {
             get
             {
-                return _angle;
+                return angle;
             }
             set
             {
-                _angle = value;
+                angle = value;
                 OnPropertyChanged("Angle");
             }
         }

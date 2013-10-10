@@ -1,42 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Model.Tree;
 
-namespace Model
+namespace Model.Primitives
 {
     public class Pocket : Shape
     {
-        //private String _name = "Bolt Hole";
-        private double _height;
-        private double _length;
-        private double _width;
-        private double _Y;
+        private double height;
+        private double length;
+        private double width;
+        private double y;
         public Pocket()
         {
-            this.Name = "Pocket";
+            Name = "Pocket";
         }
-        public double height
+        public double Height
         {
             get
             {
-                return _height;
+                return height;
             }
             set
             {
-                _height = value;
+                height = value;
                 OnPropertyChanged("Height");
             }
         }
-        public double length
+        public double Length
         {
             get
             {
-                return _length;
+                return length;
             }
             set
             {
-                _length = value;
+                length = value;
                 OnPropertyChanged("Length");
             }
         }
@@ -44,23 +40,23 @@ namespace Model
         {
             get
             {
-                return _Y;
+                return y;
             }
             set
             {
-                _Y = value;
+                y = value;
                 OnPropertyChanged("Y");
             }
         }
-        public double width
+        public double Width
         {
             get
             {
-                return _width;
+                return width;
             }
             set
             {
-                _width = value;
+                width = value;
                 OnPropertyChanged("Width");
             }
         }

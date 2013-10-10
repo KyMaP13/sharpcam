@@ -1,37 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Model.Tree;
 
 namespace Model
 {
     /// <summary>
     /// Used as parameter to generate operations
     /// </summary>
-    public enum OperationType
+    public static class Samples
     {
-        BoltHole
-    }
-    public class Samples
-    {
-
-        private const int MaxValue = 1000; //const is static too
-
-        /// <summary>
-        /// Sample with no operations and empty settings
-        /// </summary>
-        public static Project EmptyProject
-        {
-            get
-            {
-                return new Project
-                {
-                    Operations = new OperationsList(),
-                    Settings = new ProjectSettings()
-                };
-            }
-        }
-
         /// <summary>
         /// Sample with two BoltHole operations
         /// </summary>
@@ -41,9 +16,7 @@ namespace Model
             {
                 return new Project
                 {
-                    Operations = new OperationsList
-                {
-                },
+                    Operations = new OperationsList(),
                     Settings = new ProjectSettings
                     {
                         Height = 10,
@@ -54,16 +27,6 @@ namespace Model
                         FeedRate = 500
                     }
                 };
-            }
-        }
-        /// <summary>
-        /// Project with uninitialized settings and operations
-        /// </summary>
-        public static Project NullProject
-        {
-            get
-            {
-                return new Project();
             }
         }
     }
