@@ -5,10 +5,10 @@ using SharpGL;
 using SharpGL.SceneGraph;
 using System.Collections.ObjectModel;
 using Model;
-using Model.Samples;
 using System.IO;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using Model.Storages;
 
 namespace Viewer
 {
@@ -21,7 +21,8 @@ namespace Viewer
         private Project testProject = Samples.DummyProject;
         private ObservableCollection<Project> source = new ObservableCollection<Project>();
         private uint counter = 0;
-        List<List<double[]>> detailCache = new List<List<double[]>>();
+
+        private List<List<double[]>> detailCache = new List<List<double[]>>();
 
         public MainWindow()
         {
@@ -117,6 +118,8 @@ namespace Viewer
 
             Regex BoltReg = new Regex("BoltHole");
             Regex PocketReg = new Regex("Pocket");
+            if (detailCache.Count != operations.Count) detailCache.Clear();
+
             for (int i = 0; i < operations.Count; i++)//главный цикл отрисовки
             {
                 //label1.Content = operations.Count;
@@ -186,11 +189,11 @@ namespace Viewer
             gl.Begin(OpenGL.GL_LINE_STRIP);
             gl.Color(1f, 0, 0);
 
-            foreach (var operation in Tree.GCode.point)
+            foreach (var operation in GCodeGenerator.trajectoryStor.GetTrajectorys())
             {
                 foreach (var point in operation)
                 {
-                    gl.Vertex(point);
+                    gl.Vertex(point.getCoordinates());
                 }
             }
 
@@ -296,7 +299,7 @@ namespace Viewer
             this.counter++;
             this.testProject.Operations.Add(op);
 
-            Tree.GCode.flush();
+            GCodeGenerator.flush();
         }
 
         private void AddClick(object sender, RoutedEventArgs e)
@@ -315,7 +318,7 @@ namespace Viewer
                 }
                 label1.Content += " | " + j.ToString();
             }
-            Tree.GCode.flush();
+            GCodeGenerator.flush();
         }
         private void DeleteClick(object sender, RoutedEventArgs e)
         {
@@ -334,7 +337,7 @@ namespace Viewer
                 label1.Content += " ; " + j.ToString();
             }
 
-            Tree.GCode.flush();
+            GCodeGenerator.flush();
         }
         private void UpClick(object sender, RoutedEventArgs e)
         {
@@ -344,7 +347,7 @@ namespace Viewer
                 detailCache.Clear();
                 item.MoveUpEvent();
             }
-            Tree.GCode.flush();
+            GCodeGenerator.flush();
         }
         private void DownClick(object sender, RoutedEventArgs e)
         {
@@ -354,7 +357,7 @@ namespace Viewer
                 detailCache.Clear();
                 item.MoveDownEvent();
             }
-            Tree.GCode.flush();
+            GCodeGenerator.flush();
         }
 
         private void button3_Click(object sender, RoutedEventArgs e)
@@ -383,7 +386,7 @@ namespace Viewer
             };
             this.counter++;
             this.testProject.Operations.Add(op);
-            Tree.GCode.flush();
+            GCodeGenerator.flush();
         }
 
         private void _gcodeExport(object sender, RoutedEventArgs e)
@@ -394,14 +397,14 @@ namespace Viewer
             dlg.Filter = "G-code file (.nc)|*.nc";
 
             Nullable<bool> result = dlg.ShowDialog();
-            Tree.GCode.generate(this.testProject);
+            GCodeGenerator.generate(this.testProject);
 
             if (result == true)
             {
                 try
                 {
                     StreamWriter file = new StreamWriter(dlg.FileName);
-                    foreach (String line in Tree.GCode.gcode)
+                    foreach (String line in GCodeGenerator.gcode)
                     {
                         file.WriteLine(line);
                     }
@@ -416,7 +419,7 @@ namespace Viewer
 
         private void _gcodeTrajectory(object sender, RoutedEventArgs e)
         {
-            Tree.GCode.generate(this.testProject);
+            GCodeGenerator.generate(this.testProject);
         }
 
         private void button4_Click(object sender, RoutedEventArgs e)

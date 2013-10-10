@@ -4,7 +4,7 @@
         xmlns:model="clr-namespace:Model;assembly=Model"
         xmlns:viewer="clr-namespace:Viewer"
         xmlns:sharpGL="clr-namespace:SharpGL.WPF;assembly=SharpGL.WPF"
-        Title="MainWindow" Height="600" Width="1024" >
+        Title="SharpCam" Height="600" Width="1024" >
     <Window.Resources>
         <viewer:Converter x:Key="converter" />
         <Style x:Key="ButtonDelStyle" TargetType="Button">
@@ -30,21 +30,6 @@
             <Setter Property="FontSize" Value="14" />
         </Style>
 
-        <!-- Project view (with conversion): expands to settings and operation list-->
-        <!--
-        <HierarchicalDataTemplate DataType="{x:Type model:Project}">
-            <HierarchicalDataTemplate.ItemsSource>
-                <MultiBinding
-                            Converter="{StaticResource converter}"
-                            ConverterParameter="Settings:, Operations:">
-                    <Binding Path="Settings" />
-                    <Binding Path="Operations" />
-                </MultiBinding>
-            </HierarchicalDataTemplate.ItemsSource>
-            <Label Style="{StaticResource LabelStyle}" Content="Project" />
-        </HierarchicalDataTemplate>
-        -->
-        <!--ProjectSettings view: width, height, etc. -->
         <DataTemplate DataType="{x:Type model:ProjectSettings}">
             <StackPanel>
                 <StackPanel Orientation="Horizontal">
@@ -75,7 +60,6 @@
         </DataTemplate>
         <!--Operation view: content (Shape) + expanding list (Locations) -->
         <HierarchicalDataTemplate DataType="{x:Type model:Operation}">
-            <!-- ??? why not just ItemsSource? -->
             <HierarchicalDataTemplate.ItemsSource>
                 <MultiBinding
                     Converter="{StaticResource converter}"

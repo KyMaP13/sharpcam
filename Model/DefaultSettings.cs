@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Model.Samples
+namespace Model
 {
     /// <summary>
     /// Used as parameter to generate operations

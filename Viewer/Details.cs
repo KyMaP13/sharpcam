@@ -61,37 +61,6 @@ namespace Viewer
             }
             bolt.Add(Features.Adder((start.X + Center.X), y, (start.Y + Center.Y)));
         }
-
-        //public static void DrawTracking(OpenGL gl, double R, double r, double lenAll, double len, double tooldiam, double stepY, double Y, Point Center)
-        //{
-        //    gl.Begin(OpenGL.GL_LINE_STRIP);
-        //    double stepR = (R - r) / ((lenAll - len) / stepY); // рассчитываем шаг для радиуса
-        //    double stR = R;
-        //    double stY = Y;
-
-        //    for (double i = Y; i > Y - (lenAll - len); i -= stepY)
-        //    {
-        //        DrawTrack(gl, stR, tooldiam, Center, i);
-        //        stR -= stepR;
-        //    }
-
-        //    for (double i = Y - (lenAll - len); i > Y - lenAll; i -= stepY)
-        //    {
-        //        DrawTrack(gl, r, tooldiam, Center, i);
-        //    }
-        //    DrawTrack(gl, r, tooldiam, Center, Y - lenAll);
-        //    gl.End();
-        //}
-
-        //private static void DrawTrack(OpenGL gl, double stR, double tooldiam, Point Center, double stY)
-        //{
-        //    for (double j = 0; j < stR - tooldiam; j += tooldiam)
-        //    {
-        //        DrawCircle(gl, j, stY, Center, "green");
-        //    }
-        //    DrawCircle(gl, stR - tooldiam, stY, Center, "green");
-        //    DrawCircle(gl, 0, stY, Center, "green");
-        //}
     }
 
     class Pocket

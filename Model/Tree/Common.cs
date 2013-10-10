@@ -23,6 +23,7 @@ namespace Model
         {
             T item = (T)sender;
             base.Remove(item);
+            
         }
         protected void moveItemUp(object sender, EventArgs e)
         {
