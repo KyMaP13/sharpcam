@@ -10,7 +10,6 @@ using System.Collections.ObjectModel;
 using Model;
 using System.IO;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using Viewer.Tree;
 
 namespace Viewer
@@ -25,6 +24,15 @@ namespace Viewer
         private readonly Project testProject = Samples.DummyProject;
         private uint counter;
         private readonly List<List<double[]>> detailCache = new List<List<double[]>>();
+
+        Point start = new Point(0, 0);
+        Vector rotation = new Vector(0, 0);
+        Vector twist = new Vector(0, 0);
+        Vector drag = new Vector(0, 0);
+        Vector offset = new Vector(0, 0);
+        bool dragging;
+        bool rotated;
+        private IInputElement OpenGLControl = null;
 
         public MainWindow()
         {
@@ -45,7 +53,7 @@ namespace Viewer
         private void OpenGlControlOpenGlDraw(object sender, OpenGLEventArgs args)
         {
             //  Get the OpenGL instance that's been passed to us.
-            OpenGL gl = args.OpenGL;
+            var gl = args.OpenGL;
             gl.ClearColor(255, 255, 0.9f, 1.0f);
         
             //  Clear the color and depth buffers.
@@ -62,12 +70,6 @@ namespace Viewer
             dr /= 1000;
             //label2.Content = dr;
             gl.Translate((float)drag.X / dr, -(float)drag.Y / dr, zoom);//перемещение с зажатой левой кнопкой мыши
-
-            var bill = testProject.Settings;
-
-            gl.Translate(bill.Length / 2, bill.Height / 2, bill.Width / 2);//высчитывается из размера заготовки
-            gl.Rotate((float)rotation.Y, (float)rotation.X, 0); // вращение с зажатой средней кнопкой мыши
-            gl.Translate(-bill.Length / 2, -bill.Height / 2, -bill.Width / 2);
             
             //этот блок с отрисовкой осей придётся всегда пересчитывать
             gl.Begin(OpenGL.GL_LINES);//рисуем все оси
@@ -108,87 +110,7 @@ namespace Viewer
 
             ///////////////////////////////////
 
-            //var Bill = this.testProject.Settings;
-            Billet.Draw(gl, bill.Height, bill.Length, bill.Width); // заготовка
-
-            var operations = testProject.Operations;//колличество операций
-
-            var boltReg = new Regex("BoltHole");
-            var pocketReg = new Regex("Pocket");
-            if (detailCache.Count != operations.Count) detailCache.Clear();
-
-            for (int i = 0; i < operations.Count; i++)//главный цикл отрисовки
-            {
-                //label1.Content = operations.Count;
-                label2.Content = i;
-                var shapeName = operations[i].Shape.Name;
-
-                
-                if (boltReg.IsMatch(shapeName))
-                {
-                    var bolt = (Model.Primitives.BoltHole)operations[i].Shape;
-                    var boltlocation = operations[i].Location.LocationsList.GetEnumerator();
-                    while (boltlocation.MoveNext())
-                    {
-                        if (bolt.Modified || boltlocation.Current.Modified || detailCache.Count<=i)
-                        {
-
-                            try
-                            {
-                                detailCache.RemoveAt(i);
-                            }
-                            catch{}
-                            var location = new Point(boltlocation.Current.X, boltlocation.Current.Y);
-                            detailCache.Insert(i, BoltHole.ReCalc(bolt, 0.5, location)); //здесь уже всё ок, кроме величины шага
-                            boltlocation.Current.IsDrawn();
-                            bolt.IsDrawn();//значит в кэше лежит актуальная информация
-                        }
-                        else
-                        {
-                            var location = new Point(boltlocation.Current.X, boltlocation.Current.Y);
-                            BoltHole.Draw(gl, detailCache[i]); //здесь уже всё ок, кроме величины шага
-                        }
-                    }
-                }
-
-                if (!pocketReg.IsMatch(shapeName)) continue;
-                var poc = (Model.Primitives.Pocket)operations[i].Shape;
-                var poclocation = operations[i].Location.LocationsList.GetEnumerator();
-                while (poclocation.MoveNext())
-                {
-                    if (poc.Modified || poclocation.Current.Modified || detailCache.Count <= i)
-                    {
-                        try
-                        {
-                            detailCache.RemoveAt(i);
-                        }
-                        catch { }
-                        var location = new Point(poclocation.Current.X, poclocation.Current.Y);
-                        var p = Pocket.ReCalc(poc, 0.5, location);
-                        label1.Content = p.Count;
-                        detailCache.Insert(i, p); //здесь уже всё ок, кроме величины шага
-                        poclocation.Current.IsDrawn();
-                        poc.IsDrawn();//значит в кэше лежит актуальная информация
-                    }
-                    else
-                    {
-                        var location = new Point(poclocation.Current.X, poclocation.Current.Y);
-                        Pocket.Draw(gl, detailCache[i]); //здесь уже всё ок, кроме величины шага
-                    }
-                }
-            }
-
-            
-
-            //отрисовщик траекторий
-            gl.Begin(OpenGL.GL_LINE_STRIP);
-            gl.Color(1f, 0, 0);
-
-            var trajectorys = GCodeGenerator.TrajectoryStor.GetTrajectorys();
-            foreach (var point in trajectorys.SelectMany(operation => operation))
-            {
-                gl.Vertex(point.GetCoordinates());
-            }
+            OperationDrawer.DrawOperation(gl, testProject, rotation, detailCache);
 
             gl.End();            
 
@@ -223,15 +145,7 @@ namespace Viewer
                 zoom -= 10;
             }
         }
-        
-        Point start=new Point(0,0);
-        Vector rotation = new Vector(0, 0);
-        Vector twist = new Vector(0, 0);
-        Vector drag = new Vector(0, 0);
-        Vector offset = new Vector(0, 0);
-        bool dragging;
-        bool rotated;
-        private IInputElement OpenGLControl = null;
+
         private void OpenGlControlMouseMove(object sender, MouseEventArgs e)
         {
             if (e.MiddleButton == MouseButtonState.Pressed)
@@ -254,11 +168,9 @@ namespace Viewer
                     offset = drag;
                     dragging = true;
                 }
-                if (!rotated)
-                {
-                    twist = rotation;
-                    rotated = true;
-                }
+                if (rotated) return;
+                twist = rotation;
+                rotated = true;
             }  
         }
         #endregion        //конец блока навигации
